@@ -58,6 +58,7 @@ view: insights_data {
   }
 
   dimension: day {
+    hidden: yes
     type: number
     description: "Day date part of `load_timestamp_utc`."
     sql: ${TABLE}.day ;;
@@ -66,7 +67,13 @@ view: insights_data {
   dimension: duration_nanos {
     type: number
     description: "Conversation duration in nanoseconds."
-    sql: ${TABLE}.durationNanos ;;
+    sql: ${TABLE}.durationNanos;;
+  }
+
+  dimension: duration_minutes {
+    type: number
+    description: "Conversation duration in minutes."
+    sql: ${TABLE}.durationNanos/60,000,000,000;;
   }
 
   dimension: entities {
@@ -84,13 +91,15 @@ view: insights_data {
     sql: ${TABLE}.labels ;;
   }
 
-  dimension: load_timestamp_utc {
-    type: number
-    description: "The time in seconds at which the conversation was loaded into Insights."
-    sql: ${TABLE}.loadTimestampUtc ;;
+  dimension_group: load {
+    type: time
+    timeframes: [time, date, week, month_name, year, raw]
+    description: "The time in UTC at which the conversation was loaded into Insights."
+    sql: TIMESTAMP_MILLIS(${TABLE}.loadTimestampUtc) ;;
   }
 
   dimension: month {
+    hidden: yes
     type: number
     description: "Month date part of `load_timestamp_utc`."
     sql: ${TABLE}.month ;;
@@ -107,16 +116,23 @@ view: insights_data {
     sql: ${TABLE}.silenceNanos ;;
   }
 
+  dimension: silence_minutes {
+    type: number
+    description: "Number of minutes calculated to be in silence."
+    sql: ${TABLE}.silenceNanos/60,000,000,000 ;;
+  }
+
   dimension: silence_percentage {
     type: number
     description: "Percentage of the total conversation spent in silence."
     sql: ${TABLE}.silencePercentage ;;
   }
 
-  dimension: start_timestamp_utc {
-    type: number
-    description: "The time in seconds at which the conversation started."
-    sql: ${TABLE}.startTimestampUtc ;;
+  dimension_group: start {
+    type: time
+    timeframes: [time, date, week, month_name, year, raw]
+    description: "The time in UTC at which the conversation started."
+    sql: TIMESTAMP_MILLIS(${TABLE}.startTimestampUtc) ;;
   }
 
   dimension: transcript {
@@ -137,15 +153,25 @@ view: insights_data {
   }
 
   dimension: year {
+    hidden: yes
     type: number
     description: "Year date part of `load_timestamp_utc`."
     sql: ${TABLE}.year ;;
   }
 
-  measure: count {
+### Measures ###
+  measure: conversation_count {
     type: count
     drill_fields: [conversation_name]
   }
+
+  measure: average_turn_count {
+    type: average
+    sql: ${turn_count} ;;
+    value_format_name: decimal_0
+  }
+
+
 }
 
 view: insights_data__words {
