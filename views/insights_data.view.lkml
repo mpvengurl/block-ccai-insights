@@ -1,6 +1,7 @@
 view: insights_data {
   sql_table_name: `dmv_ccai_insights.insights_data`
     ;;
+    view_label: "Insights Data: Conversations"
 
   dimension: agent_id {
     type: string
@@ -95,7 +96,7 @@ view: insights_data {
     type: time
     timeframes: [time, date, week, month_name, year, raw]
     description: "The time in UTC at which the conversation was loaded into Insights."
-    sql: TIMESTAMP_MILLIS(${TABLE}.loadTimestampUtc) ;;
+    sql: TIMESTAMP_SECONDS(${TABLE}.loadTimestampUtc) ;;
   }
 
   dimension: month {
@@ -132,7 +133,7 @@ view: insights_data {
     type: time
     timeframes: [time, date, week, month_name, year, raw]
     description: "The time in UTC at which the conversation started."
-    sql: TIMESTAMP_MILLIS(${TABLE}.startTimestampUtc) ;;
+    sql: TIMESTAMP_SECONDS(${TABLE}.startTimestampUtc) ;;
   }
 
   dimension: transcript {
@@ -278,10 +279,11 @@ view: insights_data__sentences {
     sql: ${TABLE}.annotations ;;
   }
 
-  dimension: create_time_nanos {
-    type: number
-    description: "Time in nanoseconds that the conversation message took place, if provided."
-    sql: ${TABLE}.createTimeNanos ;;
+  dimension_group: created {
+    type: time
+    timeframes: [time, date, week, month_name, year, raw]
+    description: "Time in UTC that the conversation message took place, if provided."
+    sql: TIMESTAMP_MICROS(CAST(${TABLE}.createTimeNanos/1000 as INT64)) ;;
   }
 
   dimension: dialogflow_intent_match_data {
@@ -379,10 +381,11 @@ view: insights_data__sentences__annotations {
     sql: ${TABLE}.correctnessLevel ;;
   }
 
-  dimension: create_time_nanos {
-    type: number
-    description: "The timestamp when the suggestion was generated."
-    sql: ${TABLE}.createTimeNanos ;;
+  dimension_group: create {
+    type: time
+    timeframes: [time, date, week, month_name, year, raw]
+    description: "The time in UTC when the suggestion was generated."
+    sql: TIMESTAMP_MICROS(CAST(${TABLE}.createTimeNanos/1000 as INT64)) ;;
   }
 
   dimension: displayed {
