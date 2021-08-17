@@ -192,10 +192,21 @@ view: insights_data {
     sql: ${TABLE}.year ;;
   }
 
+  dimension: bad_sentiment_flag {
+    hidden:  yes
+    type: number
+    sql: case when ${client_sentiment_score} <0 then 1 else 0 end ;;
+  }
+
 ### Measures ###
   measure: conversation_count {
     type: count
     drill_fields: [conversation_name]
+  }
+
+  measure: bad_sentiment_conversation_count {
+    type: count
+    filters: [bad_sentiment_flag: "1"]
   }
 
   measure: average_turn_count {
@@ -213,16 +224,25 @@ view: insights_data {
   measure: average_silence_percentage {
     type: average
     sql: ${silence_percentage} ;;
+    value_format_name: percent_2
   }
 
   measure: average_agent_speaking_percentage {
     type: average
     sql: ${agent_speaking_percentage} ;;
+    value_format_name: percent_2
   }
 
   measure: average_client_speaking_percentage {
     type: average
     sql: ${client_speaking_percentage} ;;
+    value_format_name: percent_2
+  }
+
+  measure: bad_sentiment_ratio {
+    type: number
+    sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
+    value_format_name: percent_2
   }
 
 
