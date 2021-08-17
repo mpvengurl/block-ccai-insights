@@ -1,4 +1,5 @@
-connection: "demodataset"
+#connection: "demodataset"
+connection: "nys_dmv_prd"
 
 # include all the views
 include: "/demo_data/views/**/*.view"

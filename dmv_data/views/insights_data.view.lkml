@@ -1,6 +1,5 @@
 view: insights_data {
-  sql_table_name: `dmv_ccai_insights.insights_data`
-    ;;
+  sql_table_name: `dmv_ccai_insights.insights_data`;;
     view_label: "Insights Data: Conversations"
 
   dimension: agent_id {

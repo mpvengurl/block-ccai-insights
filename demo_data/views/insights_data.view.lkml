@@ -1,6 +1,6 @@
 view: insights_data {
-  sql_table_name: `my_insights_dataset.my_insights_table`
-    ;;
+ # sql_table_name: `my_insights_dataset.my_insights_table` ;;
+  sql_table_name: `dmv_ccai_insights.insights_data`;;
   view_label: "Insights Data: Conversations"
 
   dimension: agent_id {
@@ -210,7 +210,16 @@ view: insights_data {
   measure: average_silence_percentage {
     type: average
     sql: ${silence_percentage} ;;
+  }
 
+  measure: average_agent_speaking_percentage {
+    type: average
+    sql: ${agent_speaking_percentage} ;;
+  }
+
+  measure: average_client_speaking_percentage {
+    type: average
+    sql: ${client_speaking_percentage} ;;
   }
 
 
