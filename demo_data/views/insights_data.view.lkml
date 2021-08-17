@@ -25,6 +25,7 @@ view: insights_data {
     type: number
     description: "Percentage of the conversation with the agent speaking."
     sql: ${TABLE}.agentSpeakingPercentage ;;
+    value_format_name: percent_2
   }
 
   dimension: audio_file_uri {
@@ -49,6 +50,7 @@ view: insights_data {
     type: number
     description: "Percentage of the conversation with the client speaking."
     sql: ${TABLE}.clientSpeakingPercentage ;;
+    value_format_name: percent_2
   }
 
   dimension: conversation_name {
@@ -142,6 +144,7 @@ view: insights_data {
     type: number
     description: "Percentage of the total conversation spent in silence."
     sql: ${TABLE}.silencePercentage ;;
+    value_format_name: percent_2
   }
 
   dimension_group: start {
