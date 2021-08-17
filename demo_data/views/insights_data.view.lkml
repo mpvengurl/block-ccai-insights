@@ -66,15 +66,24 @@ view: insights_data {
   }
 
   dimension: duration_nanos {
+    hidden: yes
     type: number
     description: "Conversation duration in nanoseconds."
     sql: ${TABLE}.durationNanos;;
   }
 
+  dimension: duration_seconds {
+    hidden: yes
+    type: number
+    description: "Conversation duration in seconds."
+    sql: CAST(${TABLE}.durationNanos/1000000000 as INT64);;
+  }
+
   dimension: duration_minutes {
+    hidden: yes
     type: number
     description: "Conversation duration in minutes."
-    sql: ${TABLE}.durationNanos/60,000,000,000;;
+    sql: CAST(${TABLE}.durationNanos/60000000000 as INT64);;
   }
 
   dimension: entities {
@@ -117,10 +126,16 @@ view: insights_data {
     sql: ${TABLE}.silenceNanos ;;
   }
 
+  dimension: silence_seconds {
+    type: number
+    description: "Number of seconds calculated to be in silence."
+    sql: CAST(${TABLE}.silenceNanos/1000000000 as INT64);;
+  }
+
   dimension: silence_minutes {
     type: number
     description: "Number of minutes calculated to be in silence."
-    sql: ${TABLE}.silenceNanos/60,000,000,000 ;;
+    sql: CAST(${TABLE}.silenceNanos/60000000000 as INT64) ;;
   }
 
   dimension: silence_percentage {
@@ -134,6 +149,20 @@ view: insights_data {
     timeframes: [time, date, week, month_name, year, raw]
     description: "The time in UTC at which the conversation started."
     sql: TIMESTAMP_SECONDS(${TABLE}.startTimestampUtc) ;;
+  }
+
+  dimension_group: end {
+    type: time
+    timeframes: [time, date, week, month_name, year, raw]
+    description: "The time in UTC at which the conversation ended."
+    sql: TIMESTAMP_SECONDS(${TABLE}.startTimestampUtc+${duration_seconds}) ;;
+  }
+
+  dimension_group: conversation {
+    type: duration
+    intervals: [second, minute, hour]
+    sql_start: ${start_raw} ;;
+    sql_end: ${end_raw} ;;
   }
 
   dimension: transcript {
@@ -170,6 +199,18 @@ view: insights_data {
     type: average
     sql: ${turn_count} ;;
     value_format_name: decimal_0
+  }
+
+  measure: average_conversation_minutes {
+    type: average
+    sql: ${minutes_conversation} ;;
+    value_format_name: decimal_0
+  }
+
+  measure: average_silence_percentage {
+    type: average
+    sql: ${silence_percentage} ;;
+
   }
 
 
