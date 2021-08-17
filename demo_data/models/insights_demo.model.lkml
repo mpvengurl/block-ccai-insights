@@ -1,7 +1,7 @@
-connection: "nys_dmv_prd"
+connection: "demodataset"
 
 # include all the views
-include: "/views/**/*.view"
+include: "/demo_data/views/**/*.view"
 
 datagroup: insights_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
@@ -11,6 +11,7 @@ datagroup: insights_default_datagroup {
 persist_with: insights_default_datagroup
 
 explore: insights_data {
+  label: "Insights Demo"
   join: insights_data__words {
     view_label: "Insights Data: Words"
     sql: LEFT JOIN UNNEST(${insights_data.words}) as insights_data__words ;;
