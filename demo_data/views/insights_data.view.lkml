@@ -105,7 +105,7 @@ view: insights_data {
 
   dimension_group: load {
     type: time
-    timeframes: [time, date, week, month_name, year, raw]
+    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation was loaded into Insights."
     sql: TIMESTAMP_SECONDS(${TABLE}.loadTimestampUtc) ;;
   }
@@ -149,14 +149,14 @@ view: insights_data {
 
   dimension_group: start {
     type: time
-    timeframes: [time, date, week, month_name, year, raw]
+    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation started."
     sql: TIMESTAMP_SECONDS(${TABLE}.startTimestampUtc) ;;
   }
 
   dimension_group: end {
     type: time
-    timeframes: [time, date, week, month_name, year, raw]
+    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation ended."
     sql: TIMESTAMP_SECONDS(${TABLE}.startTimestampUtc+${duration_seconds}) ;;
   }
@@ -196,6 +196,11 @@ view: insights_data {
     hidden:  yes
     type: number
     sql: case when ${client_sentiment_score} <0 then 1 else 0 end ;;
+  }
+
+  measure: live_agent_first_turn {
+    type: number
+    sql: min(${sentence_turn_number.turn_number}) where ${insights_data__sentences.participant_role}="HUMAN_AGENT"  ;;
   }
 
 ### Measures ###
@@ -354,7 +359,7 @@ view: insights_data__sentences {
 
   dimension_group: created {
     type: time
-    timeframes: [time, date, week, month_name, year, raw]
+    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
     description: "Time in UTC that the conversation message took place, if provided."
     sql: TIMESTAMP_MICROS(CAST(${TABLE}.createTimeNanos/1000 as INT64)) ;;
   }
@@ -442,6 +447,7 @@ view: insights_data__sentences {
 }
 
 view: insights_data__sentences__annotations {
+  label: "Insights Data: Sentences"
   dimension: clicked {
     type: yesno
     description: "Customer feedback on whether the suggestion was clicked."
@@ -537,5 +543,85 @@ view: insights_data__sentences__dialogflow_intent_match_data {
     type: number
     description: "The maximum confidence seen for the intent in the current transcript chunk."
     sql: ${TABLE}.maxConfidence ;;
+  }
+}
+
+view: sentence_turn_number {
+  derived_table: {
+    sql: SELECT
+    insights_data.conversationName  AS conversation_name,
+    insights_data__sentences.sentence  AS sentence,
+        insights_data__sentences.createTimeNanos AS created_test,
+        rank() over(partition by insights_data.conversationName order by insights_data__sentences.createTimeNanos asc) AS turn_number
+    FROM `dmv_ccai_insights.insights_data` AS insights_data
+    LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
+    GROUP BY
+    1,
+    2,
+    3 ;;
+    }
+
+  dimension: conversation_name {
+    hidden: yes
+    description: "Name of the conversation resource."
+  }
+  dimension: sentence {
+    hidden: yes
+    description: "The transcribed sentence."
+  }
+  dimension: created_test {
+    hidden: yes
+    type: number
+  }
+  dimension_group: created {
+    hidden: yes
+    type: time
+    timeframes: [time, date, week, month_name, year, raw]
+    description: "Time in UTC that the conversation message took place, if provided."
+    sql: TIMESTAMP_MICROS(CAST(${created_test}/1000 as INT64)) ;;
+  }
+  dimension: turn_number {
+    type: number
+    description: "The turn number of the sentence within the conversation."
+  }
+}
+
+view: human_agent_turns {
+  derived_table: {
+    sql: WITH sentence_turn_number AS (SELECT
+    insights_data.conversationName  AS conversation_name,
+    insights_data__sentences.sentence  AS sentence,
+    insights_data__sentences.createTimeNanos AS created_test,
+    rank() over(partition by insights_data.conversationName order by insights_data__sentences.createTimeNanos asc) AS turn_number
+    FROM `dmv_ccai_insights.insights_data` AS insights_data
+    LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
+    GROUP BY
+    1,
+    2,
+    3 )
+SELECT
+    insights_data.conversationName  AS conversation_name,
+    min(sentence_turn_number.turn_number) AS first_turn_human_agent
+FROM `dmv_ccai_insights.insights_data` AS insights_data
+LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
+LEFT JOIN sentence_turn_number ON insights_data.conversationName=sentence_turn_number.conversation_name
+    and insights_data__sentences.sentence = sentence_turn_number.sentence
+    and (TIMESTAMP_MICROS(CAST(insights_data__sentences.createTimeNanos/1000 as INT64))) = (TIMESTAMP_MICROS(CAST(sentence_turn_number.created_test/1000 as INT64)))
+    where insights_data__sentences.participantRole = "HUMAN_AGENT"
+GROUP BY
+    1 ;;
+  }
+
+  dimension: conversation_name {
+    hidden: yes
+    description: "Name of the conversation resource."
+  }
+  dimension: first_turn_human_agent {
+    description: "The turn number for the first time a human agent entered a conversation."
+  }
+  measure: average_first_turn_human_agent {
+    type: average
+    sql: ${first_turn_human_agent} ;;
+    value_format_name: decimal_0
   }
 }

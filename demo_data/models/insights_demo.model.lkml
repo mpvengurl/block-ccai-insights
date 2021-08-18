@@ -66,4 +66,18 @@ explore: insights_data {
     sql: LEFT JOIN UNNEST(${insights_data__sentences.dialogflow_intent_match_data}) as insights_data__sentences__dialogflow_intent_match_data ;;
     relationship: one_to_many
   }
+
+  join: sentence_turn_number {
+    view_label: "Insights Data: Sentences"
+    relationship: one_to_many
+    sql_on: ${insights_data.conversation_name}=${sentence_turn_number.conversation_name}
+    and ${insights_data__sentences.sentence} = ${sentence_turn_number.sentence}
+    and ${insights_data__sentences.created_raw} = ${sentence_turn_number.created_raw};;
+  }
+
+  join: human_agent_turns {
+    view_label: "Insights Data: Conversations"
+    relationship: one_to_one
+    sql_on: ${insights_data.conversation_name} = ${human_agent_turns.conversation_name} ;;
+  }
 }
