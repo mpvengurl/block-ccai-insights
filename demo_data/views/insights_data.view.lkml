@@ -105,7 +105,7 @@ view: insights_data {
 
   dimension_group: load {
     type: time
-    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
+    timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation was loaded into Insights."
     sql: TIMESTAMP_SECONDS(${TABLE}.loadTimestampUtc) ;;
   }
@@ -149,14 +149,14 @@ view: insights_data {
 
   dimension_group: start {
     type: time
-    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
+    timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation started."
     sql: TIMESTAMP_SECONDS(${TABLE}.startTimestampUtc) ;;
   }
 
   dimension_group: end {
     type: time
-    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
+    timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation ended."
     sql: TIMESTAMP_SECONDS(${TABLE}.startTimestampUtc+${duration_seconds}) ;;
   }
@@ -198,10 +198,6 @@ view: insights_data {
     sql: case when ${client_sentiment_score} <0 then 1 else 0 end ;;
   }
 
-  measure: live_agent_first_turn {
-    type: number
-    sql: min(${sentence_turn_number.turn_number}) where ${insights_data__sentences.participant_role}="HUMAN_AGENT"  ;;
-  }
 
 ### Measures ###
   measure: conversation_count {
@@ -359,7 +355,7 @@ view: insights_data__sentences {
 
   dimension_group: created {
     type: time
-    timeframes: [time, time_of_day, date, day_of_week, week, month_name, year, raw]
+    timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "Time in UTC that the conversation message took place, if provided."
     sql: TIMESTAMP_MICROS(CAST(${TABLE}.createTimeNanos/1000 as INT64)) ;;
   }
@@ -462,7 +458,7 @@ view: insights_data__sentences__annotations {
 
   dimension_group: create {
     type: time
-    timeframes: [time, date, week, month_name, year, raw]
+    timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC when the suggestion was generated."
     sql: TIMESTAMP_MICROS(CAST(${TABLE}.createTimeNanos/1000 as INT64)) ;;
   }
@@ -576,7 +572,7 @@ view: sentence_turn_number {
   dimension_group: created {
     hidden: yes
     type: time
-    timeframes: [time, date, week, month_name, year, raw]
+    timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "Time in UTC that the conversation message took place, if provided."
     sql: TIMESTAMP_MICROS(CAST(${created_test}/1000 as INT64)) ;;
   }
