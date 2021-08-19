@@ -302,6 +302,11 @@ view: insights_data__words {
     description: "The transcribed word."
     sql: ${TABLE}.word ;;
   }
+
+  measure: count {
+    type: count_distinct
+    sql: ${word} ;;
+  }
 }
 
 view: insights_data__labels {
@@ -329,6 +334,11 @@ view: insights_data__issues {
     type: number
     description: "Score indicating the likelihood of the issue assignment, between 0 and 1.0."
     sql: ${TABLE}.score ;;
+  }
+
+  measure: count {
+    type: count_distinct
+    sql: ${name} ;;
   }
 }
 
@@ -367,6 +377,11 @@ view: insights_data__entities {
     type: string
     description: "Type of the entity."
     sql: ${TABLE}.type ;;
+  }
+
+  measure: count {
+    type: count_distinct
+    sql: ${name} ;;
   }
 }
 
@@ -462,6 +477,11 @@ view: insights_data__sentences {
     type: number
     description: "Time offset in nanoseconds of the start of this sentence relative to the beginning of the conversation."
     sql: ${TABLE}.startOffsetNanos ;;
+  }
+
+  measure: count {
+    type: count_distinct
+    sql: ${sentence} ;;
   }
 }
 
