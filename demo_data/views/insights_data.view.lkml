@@ -192,10 +192,11 @@ view: insights_data {
     sql: ${TABLE}.year ;;
   }
 
-  dimension: bad_sentiment_flag {
-    hidden:  yes
-    type: number
-    sql: case when ${client_sentiment_score} <0 then 1 else 0 end ;;
+  dimension: sentiment_category {
+    type: string
+    sql: case when ${client_sentiment_score} <0 then "bad"
+    when ${client_sentiment_score} >0 then "good"
+    else "neutral" end;;
   }
 
 
@@ -207,7 +208,17 @@ view: insights_data {
 
   measure: bad_sentiment_conversation_count {
     type: count
-    filters: [bad_sentiment_flag: "1"]
+    filters: [sentiment_category: "bad"]
+  }
+
+  measure: good_sentiment_conversation_count {
+    type: count
+    filters: [sentiment_category: "good"]
+  }
+
+  measure: neutral_sentiment_conversation_count {
+    type: count
+    filters: [sentiment_category: "neutral"]
   }
 
   measure: average_turn_count {
@@ -243,6 +254,18 @@ view: insights_data {
   measure: bad_sentiment_ratio {
     type: number
     sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
+    value_format_name: percent_2
+  }
+
+  measure: good_sentiment_ratio {
+    type: number
+    sql: ${good_sentiment_conversation_count}/${conversation_count} ;;
+    value_format_name: percent_2
+  }
+
+  measure: neutral_sentiment_ratio {
+    type: number
+    sql: ${neutral_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
   }
 
