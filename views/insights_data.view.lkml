@@ -1,6 +1,7 @@
 view: insights_data {
  # sql_table_name: `my_insights_dataset.my_insights_table` ;;
-  sql_table_name: `dmv_ccai_insights.insights_data`;;
+  #sql_table_name: `dmv_ccai_insights.insights_data`;;
+  sql_table_name: @{INSIGHTS_TABLE} ;;
   view_label: "Insights Data: Conversations"
 
   dimension: agent_id {
@@ -592,8 +593,8 @@ view: sentence_turn_number {
     insights_data__sentences.sentence  AS sentence,
         insights_data__sentences.createTimeNanos AS created_test,
         rank() over(partition by insights_data.conversationName order by insights_data__sentences.createTimeNanos asc) AS turn_number
-    FROM `dmv_ccai_insights.insights_data` AS insights_data
-    LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
+    FROM @{INSIGHTS_TABLE} AS insights_data
+    LEFT JOIN UNNEST(@{UNNEST_TABLE}.sentences) as insights_data__sentences
     GROUP BY
     1,
     2,
@@ -632,8 +633,8 @@ view: human_agent_turns {
     insights_data__sentences.sentence  AS sentence,
     insights_data__sentences.createTimeNanos AS created_test,
     rank() over(partition by insights_data.conversationName order by insights_data__sentences.createTimeNanos asc) AS turn_number
-    FROM `dmv_ccai_insights.insights_data` AS insights_data
-    LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
+    FROM @{INSIGHTS_TABLE} AS insights_data
+    LEFT JOIN UNNEST(@{UNNEST_TABLE}.sentences) as insights_data__sentences
     GROUP BY
     1,
     2,
@@ -641,8 +642,8 @@ view: human_agent_turns {
 SELECT
     insights_data.conversationName  AS conversation_name,
     min(sentence_turn_number.turn_number) AS first_turn_human_agent
-FROM `dmv_ccai_insights.insights_data` AS insights_data
-LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
+FROM @{INSIGHTS_TABLE} AS insights_data
+LEFT JOIN UNNEST(@{UNNEST_TABLE}.sentences) as insights_data__sentences
 LEFT JOIN sentence_turn_number ON insights_data.conversationName=sentence_turn_number.conversation_name
     and insights_data__sentences.sentence = sentence_turn_number.sentence
     and (TIMESTAMP_MICROS(CAST(insights_data__sentences.createTimeNanos/1000 as INT64))) = (TIMESTAMP_MICROS(CAST(sentence_turn_number.created_test/1000 as INT64)))
