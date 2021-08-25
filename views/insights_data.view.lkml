@@ -200,77 +200,187 @@ view: insights_data {
     else "neutral" end;;
   }
 
+  ###################### Period over Period Reporting Metrics ######################
+
+  parameter: period {
+    label: "Timeframe"
+    view_label: "Period over Period"
+    description: "Use with Reporting Period to choose the timeframe for analysis"
+    type: unquoted
+    allowed_value: {
+      label: "Week to Date"
+      value: "Week"
+    }
+    allowed_value: {
+      label: "Month to Date"
+      value: "Month"
+    }
+    allowed_value: {
+      label: "Quarter to Date"
+      value: "Quarter"
+    }
+    allowed_value: {
+      label: "Year to Date"
+      value: "Year"
+    }
+    default_value: "Period"
+  }
+
+  parameter: pop_date {
+    label: "Period Over Period Date"
+    view_label: "Period over Period"
+    description: "Choose your start date for period over period analysis. Uses Conversation Load Date."
+    type: date
+    suggest_dimension: load_date
+  }
+
+  # To get start date we need to get either first day of the year, month or quarter
+  dimension: first_date_in_period {
+    view_label: "Period over Period"
+    datatype: date
+    type: date
+    hidden: no
+    sql: DATE_TRUNC(date({% parameter pop_date %}), {% parameter period %});;
+  }
+
+  #Now get the total number of days in the period
+  dimension: days_in_period {
+    view_label: "Period over Period"
+    type: number
+    hidden: yes
+    sql: DATE_DIFF(date({% parameter pop_date %}),${first_date_in_period}, DAY) ;;
+  }
+
+
+  #Now get the first date in the prior period
+  dimension: first_date_in_prior_period {
+    view_label: "Period over Period"
+    datatype: date
+    type: date
+    hidden: no
+    sql: DATE_TRUNC(DATE_ADD(date({% parameter pop_date %}), INTERVAL -1 {% parameter period %}),{% parameter period %});;
+  }
+
+  #Now get the last date in the prior period
+  dimension: last_date_in_prior_period {
+    datatype: date
+    view_label: "Period over Period"
+    type: date
+    hidden: yes
+    sql: DATE_ADD(date(${first_date_in_prior_period}), INTERVAL ${days_in_period} DAY) ;;
+  }
+
+  # Now figure out which period each date belongs in
+  dimension: period_selected {
+    view_label: "Period over Period"
+    type: string
+    sql:
+        CASE
+          WHEN date(${load_raw}) >=  date(${first_date_in_period})
+          AND date(${load_raw}) <=  date({% parameter pop_date %})
+          THEN 'Selected {% parameter period %} to Date'
+          WHEN date(${load_raw}) >= date(${first_date_in_prior_period})
+          AND date(${load_raw}) <= date(${last_date_in_prior_period})
+          THEN 'Prior {% parameter period %} to Date'
+          ELSE NULL
+          END ;;
+  }
+
+
+  dimension: days_from_period_start {
+    view_label: "Period over Period"
+    type: number
+    sql: CASE WHEN ${period_selected} = 'Selected {% parameter period %} to Date'
+          THEN DATE_DIFF(${load_date}, ${first_date_in_period}, DAY)
+          WHEN ${period_selected} = 'Prior {% parameter period %} to Date'
+          THEN DATE_DIFF(${load_date}, ${first_date_in_prior_period}, DAY)
+          ELSE NULL END;;
+  }
+
 
 ### Measures ###
   measure: conversation_count {
     type: count
-    drill_fields: [conversation_name]
+    drill_fields: [details*]
   }
 
   measure: bad_sentiment_conversation_count {
     type: count
     filters: [sentiment_category: "bad"]
+    drill_fields: [details*]
   }
 
   measure: good_sentiment_conversation_count {
     type: count
     filters: [sentiment_category: "good"]
+    drill_fields: [details*]
   }
 
   measure: neutral_sentiment_conversation_count {
     type: count
     filters: [sentiment_category: "neutral"]
+    drill_fields: [details*]
   }
 
   measure: average_turn_count {
     type: average
     sql: ${turn_count} ;;
     value_format_name: decimal_0
+    drill_fields: [details*]
   }
 
   measure: average_conversation_minutes {
     type: average
     sql: ${minutes_conversation} ;;
     value_format_name: decimal_0
+    drill_fields: [details*]
   }
 
   measure: average_silence_percentage {
     type: average
     sql: ${silence_percentage} ;;
     value_format_name: percent_2
+    drill_fields: [details*]
   }
 
   measure: average_agent_speaking_percentage {
     type: average
     sql: ${agent_speaking_percentage} ;;
     value_format_name: percent_2
+    drill_fields: [details*]
   }
 
   measure: average_client_speaking_percentage {
     type: average
     sql: ${client_speaking_percentage} ;;
     value_format_name: percent_2
+    drill_fields: [details*]
   }
 
   measure: bad_sentiment_ratio {
     type: number
     sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
+    drill_fields: [details*]
   }
 
   measure: good_sentiment_ratio {
     type: number
     sql: ${good_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
+    drill_fields: [details*]
   }
 
   measure: neutral_sentiment_ratio {
     type: number
     sql: ${neutral_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
+    drill_fields: [details*]
   }
 
-
+ set: details {
+   fields: [conversation_name, load_time, agent_id, sentiment_category, turn_count]
+ }
 }
 
 view: insights_data__words {
