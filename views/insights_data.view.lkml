@@ -205,7 +205,7 @@ view: insights_data {
   parameter: period {
     label: "Timeframe"
     view_label: "Period over Period"
-    description: "Use with Reporting Period to choose the timeframe for analysis"
+    description: "Use with Period Over Period Date to choose the timeframe for analysis (WTD, MTD, QTD, YTD)"
     type: unquoted
     allowed_value: {
       label: "Week to Date"
@@ -223,7 +223,8 @@ view: insights_data {
       label: "Year to Date"
       value: "Year"
     }
-    default_value: "Period"
+    default_value: "Week"
+    required_fields: [pop_date,period_selected]
   }
 
   parameter: pop_date {
@@ -232,6 +233,7 @@ view: insights_data {
     description: "Choose your start date for period over period analysis. Uses Conversation Load Date."
     type: date
     suggest_dimension: load_date
+    required_fields: [period, period_selected]
   }
 
   # To get start date we need to get either first day of the year, month or quarter
@@ -257,7 +259,7 @@ view: insights_data {
     view_label: "Period over Period"
     datatype: date
     type: date
-    hidden: no
+    hidden: yes
     sql: DATE_TRUNC(DATE_ADD(date({% parameter pop_date %}), INTERVAL -1 {% parameter period %}),{% parameter period %});;
   }
 
@@ -272,8 +274,10 @@ view: insights_data {
 
   # Now figure out which period each date belongs in
   dimension: period_selected {
+    label: "Period Over Period"
     view_label: "Period over Period"
     type: string
+    required_fields: [period,pop_date]
     sql:
         CASE
           WHEN date(${load_raw}) >=  date(${first_date_in_period})
@@ -289,6 +293,7 @@ view: insights_data {
 
   dimension: days_from_period_start {
     view_label: "Period over Period"
+    hidden:  yes
     type: number
     sql: CASE WHEN ${period_selected} = 'Selected {% parameter period %} to Date'
           THEN DATE_DIFF(${load_date}, ${first_date_in_period}, DAY)
