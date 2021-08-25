@@ -326,35 +326,35 @@ view: insights_data {
     type: average
     sql: ${turn_count} ;;
     value_format_name: decimal_0
-    drill_fields: [details*]
+    drill_fields: [details*, turn_count]
   }
 
   measure: average_conversation_minutes {
     type: average
     sql: ${minutes_conversation} ;;
     value_format_name: decimal_0
-    drill_fields: [details*]
+    drill_fields: [details*, duration_minutes]
   }
 
   measure: average_silence_percentage {
     type: average
     sql: ${silence_percentage} ;;
     value_format_name: percent_2
-    drill_fields: [details*]
+    drill_fields: [details*, silence_percentage, silence_minutes]
   }
 
   measure: average_agent_speaking_percentage {
     type: average
     sql: ${agent_speaking_percentage} ;;
     value_format_name: percent_2
-    drill_fields: [details*]
+    drill_fields: [details*, agent_speaking_percentage]
   }
 
   measure: average_client_speaking_percentage {
     type: average
     sql: ${client_speaking_percentage} ;;
     value_format_name: percent_2
-    drill_fields: [details*]
+    drill_fields: [details*, client_speaking_percentage]
   }
 
   measure: bad_sentiment_ratio {
@@ -379,7 +379,7 @@ view: insights_data {
   }
 
  set: details {
-   fields: [conversation_name, load_time, agent_id, sentiment_category, turn_count]
+   fields: [conversation_name, load_time, agent_id, sentiment_category]
  }
 }
 
