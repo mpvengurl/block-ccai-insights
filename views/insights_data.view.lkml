@@ -105,6 +105,7 @@ view: insights_data {
   }
 
   dimension_group: load {
+    label: "Import"
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation was loaded into Insights."
@@ -195,9 +196,17 @@ view: insights_data {
 
   dimension: sentiment_category {
     type: string
+    description: "Negative sentiment score is bad, 0 sentiment score is neutral, and positive sentiment score is good."
     sql: case when ${client_sentiment_score} <0 then "bad"
     when ${client_sentiment_score} >0 then "good"
     else "neutral" end;;
+  }
+
+  dimension: type {
+    description: "If the call was never transferred to a human, then the call is classified as Virtual. If the call was transferred to a human, then the call is classified as human."
+    type: string
+    sql: case when ${human_agent_turns.first_turn_human_agent} is null then "Virtual Agent"
+    else "Human Agent" end;;
   }
 
   ###################### Period over Period Reporting Metrics ######################
@@ -230,7 +239,7 @@ view: insights_data {
   parameter: pop_date {
     label: "Period Over Period Date"
     view_label: "Period over Period"
-    description: "Choose your start date for period over period analysis. Uses Conversation Load Date."
+    description: "Choose your start date for period over period analysis. Uses Conversation Import Date."
     type: date
     suggest_dimension: load_date
     required_fields: [period, period_selected]
