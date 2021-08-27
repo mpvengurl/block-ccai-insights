@@ -318,6 +318,13 @@ view: insights_data {
     drill_fields: [details*]
   }
 
+  measure: contained_count {
+    description: "A conversation is considered contained if it was never passed to a human agent."
+    type: count
+    filters: [type: "Virtual Agent"]
+    drill_fields: [details*]
+  }
+
   measure: bad_sentiment_conversation_count {
     type: count
     filters: [sentiment_category: "bad"]
@@ -787,5 +794,101 @@ GROUP BY
     type: average
     sql: ${first_turn_human_agent} ;;
     value_format_name: decimal_0
+  }
+}
+
+# If necessary, uncomment the line below to include explore_source.
+# include: "insights_demo.model.lkml"
+
+view: daily_facts {
+  derived_table: {
+    explore_source: insights_data {
+      column: load_date {}
+      column: conversation_count {}
+      column: contained_count {}
+      column: good_sentiment_conversation_count {}
+      column: bad_sentiment_conversation_count {}
+      column: neutral_sentiment_conversation_count {}
+      column: entity_count { field: insights_data__entities.count }
+      column: issue_count { field: insights_data__issues.count }
+    }
+  }
+  dimension: load_date {
+    primary_key:yes
+    hidden: yes
+    label: "Insights Data: Conversations Import Date"
+    description: "The time in UTC at which the conversation was loaded into Insights."
+    type: date
+  }
+  dimension: conversation_count {
+    hidden: yes
+    label: "Insights Data: Conversations Conversation Count"
+    type: number
+  }
+  measure: average_daily_conversations {
+    description: "Average Conversations Per Day"
+    type: average
+    sql: ${conversation_count} ;;
+  }
+  dimension: contained_count {
+    hidden: yes
+    label: "Insights Data: Conversations Contained Count"
+    description: "A conversation is considered contained if it was never passed to a human agent."
+    type: number
+  }
+  measure: average_daily_contained_conversations {
+    description: "Average Contained Conversations Per Day"
+    type: average
+    sql: ${contained_count} ;;
+  }
+  dimension: good_sentiment_conversation_count {
+    hidden:  yes
+    label: "Insights Data: Conversations Good Sentiment Conversation Count"
+    type: number
+  }
+  measure: average_daily_good_sentiment_conversations {
+    description: "Average Good Sentiment Conversations Per Day"
+    type: average
+    sql: ${good_sentiment_conversation_count} ;;
+  }
+  dimension: bad_sentiment_conversation_count {
+    hidden:  yes
+    label: "Insights Data: Conversations Bad Sentiment Conversation Count"
+    type: number
+  }
+  measure: average_daily_bad_sentiment_conversations {
+    description: "Average Bad Sentiment Conversations Per Day"
+    type: average
+    sql: ${bad_sentiment_conversation_count} ;;
+  }
+  dimension: neutral_sentiment_conversation_count {
+    hidden: yes
+    label: "Insights Data: Conversations Neutral Sentiment Conversation Count"
+    type: number
+  }
+  measure: average_daily_neutral_conversations {
+    description: "Average Neutral Sentiment Conversations Per Day"
+    type: average
+    sql: ${neutral_sentiment_conversation_count} ;;
+  }
+  dimension: entity_count {
+    hidden:  yes
+    label: "Insights Data: Entities Count"
+    type: number
+  }
+  measure: average_daily_entities {
+    description: "Average Entities Per Day"
+    type: average
+    sql: ${entity_count} ;;
+  }
+  dimension: issue_count {
+    hidden: yes
+    label: "Insights Data: Issues Count"
+    type: number
+  }
+  measure: average_daily_issues {
+    description: "Average Issues Per Day"
+    type: average
+    sql: ${issue_count} ;;
   }
 }

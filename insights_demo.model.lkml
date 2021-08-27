@@ -11,7 +11,7 @@ datagroup: insights_default_datagroup {
 persist_with: insights_default_datagroup
 
 explore: insights_data {
-  label: "Insights Demo"
+  label: "CCAI Insights"
   join: insights_data__words {
     view_label: "Insights Data: Words"
     sql: LEFT JOIN UNNEST(${insights_data.words}) as insights_data__words ;;
@@ -78,5 +78,11 @@ explore: insights_data {
     view_label: "Insights Data: Conversations"
     relationship: one_to_one
     sql_on: ${insights_data.conversation_name} = ${human_agent_turns.conversation_name} ;;
+  }
+
+  join: daily_facts {
+    view_label: "Insights Data: Conversations"
+    relationship: many_to_one
+    sql_on: ${insights_data.load_date}=${daily_facts.load_date} ;;
   }
 }
