@@ -2,7 +2,7 @@ view: insights_data {
  # sql_table_name: `my_insights_dataset.my_insights_table` ;;
   #sql_table_name: `dmv_ccai_insights.insights_data`;;
   sql_table_name: @{INSIGHTS_TABLE} ;;
-  view_label: "Insights Data: Conversations"
+  view_label: "Conversations"
 
   dimension: agent_id {
     type: string
@@ -94,7 +94,7 @@ view: insights_data {
     sql: ${TABLE}.entities ;;
   }
 
-  dimension: issues {
+  dimension: topics {
     hidden: yes
     sql: ${TABLE}.issues ;;
   }
@@ -325,6 +325,14 @@ view: insights_data {
     drill_fields: [details*]
   }
 
+  measure: contained_percentage {
+    description: ""
+    type: number
+    sql: ${contained_count}/${conversation_count} ;;
+    value_format_name: percent_0
+    drill_fields: [details*]
+  }
+
   measure: bad_sentiment_conversation_count {
     type: count
     filters: [sentiment_category: "bad"]
@@ -381,7 +389,7 @@ view: insights_data {
   measure: bad_sentiment_ratio {
     type: number
     sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
-    value_format_name: percent_2
+    value_format_name: percent_0
     drill_fields: [details*]
   }
 
@@ -455,16 +463,16 @@ view: insights_data__labels {
   }
 }
 
-view: insights_data__issues {
+view: insights_data__topics {
   dimension: name {
     type: string
-    description: "Name of the issue."
+    description: "Name of the topic."
     sql: ${TABLE}.name ;;
   }
 
   dimension: score {
     type: number
-    description: "Score indicating the likelihood of the issue assignment, between 0 and 1.0."
+    description: "Score indicating the likelihood of the topic assignment, between 0 and 1.0."
     sql: ${TABLE}.score ;;
   }
 
@@ -797,10 +805,9 @@ GROUP BY
   }
 }
 
-# If necessary, uncomment the line below to include explore_source.
-# include: "insights_demo.model.lkml"
 
 view: daily_facts {
+
   derived_table: {
     explore_source: insights_data {
       column: load_date {}
@@ -810,14 +817,12 @@ view: daily_facts {
       column: bad_sentiment_conversation_count {}
       column: neutral_sentiment_conversation_count {}
       column: entity_count { field: insights_data__entities.count }
-      column: issue_count { field: insights_data__issues.count }
+      column: topic_count { field: insights_data__topics.count }
+      column: contained_percentage {}
     }
   }
   dimension: load_date {
-    primary_key:yes
     hidden: yes
-    label: "Insights Data: Conversations Import Date"
-    description: "The time in UTC at which the conversation was loaded into Insights."
     type: date
   }
   dimension: conversation_count {
@@ -826,6 +831,7 @@ view: daily_facts {
     type: number
   }
   measure: average_daily_conversations {
+    group_label: "Daily Metrics"
     description: "Average Conversations Per Day"
     type: average
     sql: ${conversation_count} ;;
@@ -837,6 +843,7 @@ view: daily_facts {
     type: number
   }
   measure: average_daily_contained_conversations {
+    group_label: "Daily Metrics"
     description: "Average Contained Conversations Per Day"
     type: average
     sql: ${contained_count} ;;
@@ -847,6 +854,7 @@ view: daily_facts {
     type: number
   }
   measure: average_daily_good_sentiment_conversations {
+    group_label: "Daily Metrics"
     description: "Average Good Sentiment Conversations Per Day"
     type: average
     sql: ${good_sentiment_conversation_count} ;;
@@ -857,16 +865,19 @@ view: daily_facts {
     type: number
   }
   measure: average_daily_bad_sentiment_conversations {
+    group_label: "Daily Metrics"
     description: "Average Bad Sentiment Conversations Per Day"
     type: average
     sql: ${bad_sentiment_conversation_count} ;;
   }
   dimension: neutral_sentiment_conversation_count {
+    group_label: "Daily Metrics"
     hidden: yes
     label: "Insights Data: Conversations Neutral Sentiment Conversation Count"
     type: number
   }
   measure: average_daily_neutral_conversations {
+    group_label: "Daily Metrics"
     description: "Average Neutral Sentiment Conversations Per Day"
     type: average
     sql: ${neutral_sentiment_conversation_count} ;;
@@ -877,18 +888,29 @@ view: daily_facts {
     type: number
   }
   measure: average_daily_entities {
+    group_label: "Daily Metrics"
     description: "Average Entities Per Day"
     type: average
     sql: ${entity_count} ;;
   }
-  dimension: issue_count {
+  dimension: topic_count {
     hidden: yes
-    label: "Insights Data: Issues Count"
     type: number
   }
-  measure: average_daily_issues {
-    description: "Average Issues Per Day"
+  measure: average_daily_topics {
+    group_label: "Daily Metrics"
+    description: "Average Topics Per Day"
     type: average
-    sql: ${issue_count} ;;
+    sql: ${topic_count} ;;
+  }
+  dimension: contained_percentage {
+    hidden: yes
+    type: number
+  }
+  measure: average_daily_contained_percentage {
+    group_label: "Daily Metrics"
+    description: "Average Daily Contained Percentage Per Day"
+    type: average
+    sql: ${contained_percentage} ;;
   }
 }
