@@ -43,25 +43,26 @@ explore: insights_data {
   }
 
   join: insights_data__sentences__annotations {
-    view_label: "Sentences Annotations"
+    view_label: "Sentences"
+
     sql: LEFT JOIN UNNEST(${insights_data__sentences.annotations}) as insights_data__sentences__annotations ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences__intent_match_data {
-    view_label: "Sentences Intentmatchdata"
+    view_label: "Sentences"
     sql: LEFT JOIN UNNEST(${insights_data__sentences.intent_match_data}) as insights_data__sentences__intent_match_data ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences__phrase_match_data {
-    view_label: "Sentences Phrasematchdata"
+    view_label: "Sentences"
     sql: LEFT JOIN UNNEST(${insights_data__sentences.phrase_match_data}) as insights_data__sentences__phrase_match_data ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences__dialogflow_intent_match_data {
-    view_label: "Sentences Dialogflowintentmatchdata"
+    view_label: "Sentences"
     sql: LEFT JOIN UNNEST(${insights_data__sentences.dialogflow_intent_match_data}) as insights_data__sentences__dialogflow_intent_match_data ;;
     relationship: one_to_many
   }

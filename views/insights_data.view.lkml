@@ -94,11 +94,6 @@ view: insights_data {
     sql: ${TABLE}.entities ;;
   }
 
-  dimension: topics {
-    hidden: yes
-    sql: ${TABLE}.issues ;;
-  }
-
   dimension: labels {
     hidden: yes
     sql: ${TABLE}.labels ;;
@@ -125,12 +120,14 @@ view: insights_data {
   }
 
   dimension: silence_nanos {
+    hidden: yes
     type: number
     description: "Number of nanoseconds calculated to be in silence."
     sql: ${TABLE}.silenceNanos ;;
   }
 
   dimension: silence_seconds {
+    hidden: yes
     type: number
     description: "Number of seconds calculated to be in silence."
     sql: CAST(${TABLE}.silenceNanos/1000000000 as INT64);;
@@ -168,6 +165,11 @@ view: insights_data {
     intervals: [second, minute, hour]
     sql_start: ${start_raw} ;;
     sql_end: ${end_raw} ;;
+  }
+
+  dimension: topics {
+    hidden: yes
+    sql: ${TABLE}.issues ;;
   }
 
   dimension: transcript {
@@ -414,6 +416,7 @@ view: insights_data {
 
 view: insights_data__words {
   dimension: end_offset_nanos {
+    hidden: yes
     type: number
     description: "Time offset in nanoseconds of the end of this word relative to the beginning of the conversation."
     sql: ${TABLE}.endOffsetNanos ;;
@@ -432,6 +435,7 @@ view: insights_data__words {
   }
 
   dimension: start_offset_nanos {
+    hidden: yes
     type: number
     description: "Time offset in nanoseconds of the start of this word relative to the beginning of the conversation."
     sql: ${TABLE}.startOffsetNanos ;;
@@ -544,6 +548,7 @@ view: insights_data__sentences {
   }
 
   dimension: end_offset_nanos {
+    hidden: yes
     type: number
     description: "Time offset in nanoseconds of the end of this sentence relative to the beginning of the conversation."
     sql: ${TABLE}.endOffsetNanos ;;
@@ -614,6 +619,7 @@ view: insights_data__sentences {
   }
 
   dimension: start_offset_nanos {
+    hidden: yes
     type: number
     description: "Time offset in nanoseconds of the start of this sentence relative to the beginning of the conversation."
     sql: ${TABLE}.startOffsetNanos ;;
@@ -627,19 +633,23 @@ view: insights_data__sentences {
 
 view: insights_data__sentences__annotations {
   label: "Insights Data: Sentences"
+
   dimension: clicked {
+    group_label: "Annotations"
     type: yesno
     description: "Customer feedback on whether the suggestion was clicked."
     sql: ${TABLE}.clicked ;;
   }
 
   dimension: correctness_level {
+    group_label: "Annotations"
     type: string
     description: "Customer feedback on the correctness level of the suggestion."
     sql: ${TABLE}.correctnessLevel ;;
   }
 
   dimension_group: create {
+    group_label: "Annotations"
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC when the suggestion was generated."
@@ -647,18 +657,21 @@ view: insights_data__sentences__annotations {
   }
 
   dimension: displayed {
+    group_label: "Annotations"
     type: yesno
     description: "Customer feedback on whether the suggestion was displayed."
     sql: ${TABLE}.displayed ;;
   }
 
   dimension: record {
+    group_label: "Annotations"
     type: string
     description: "The suggestion content returned from CCAI, serialised as JSON."
     sql: ${TABLE}.record ;;
   }
 
   dimension: type {
+    group_label: "Annotations"
     type: string
     description: "The type of suggestion."
     sql: ${TABLE}.type ;;
@@ -667,12 +680,14 @@ view: insights_data__sentences__annotations {
 
 view: insights_data__sentences__intent_match_data {
   dimension: display_name {
+    group_label: "Intent Match"
     type: string
     description: "The human readable name of the matched intent."
     sql: ${TABLE}.displayName ;;
   }
 
   dimension: intent_id {
+    group_label: "Intent Match"
     type: string
     description: "The unique ID of the matched intent."
     sql: ${TABLE}.intentId ;;
@@ -681,18 +696,21 @@ view: insights_data__sentences__intent_match_data {
 
 view: insights_data__sentences__phrase_match_data {
   dimension: display_name {
+    group_label: "Phrase Match"
     type: string
     description: "The human readable name of the phrase matcher."
     sql: ${TABLE}.displayName ;;
   }
 
   dimension: phrase_matcher_id {
+    group_label: "Phrase Match"
     type: string
     description: "The unique ID of the phrase matcher."
     sql: ${TABLE}.phraseMatcherId ;;
   }
 
   dimension: revision_id {
+    group_label: "Phrase Match"
     type: number
     description: "Indicating the revision of the phrase matcher."
     sql: ${TABLE}.revisionId ;;
@@ -701,24 +719,28 @@ view: insights_data__sentences__phrase_match_data {
 
 view: insights_data__sentences__dialogflow_intent_match_data {
   dimension: display_name {
+    group_label: "Dialogflow Intent Match"
     type: string
     description: "The human readable name of the matched intent."
     sql: ${TABLE}.displayName ;;
   }
 
   dimension: intent_match_source {
+    group_label: "Dialogflow Intent Match"
     type: string
     description: "The source of the matched intent, either ANALYZE_CONTENT or DETECT_INTENT."
     sql: ${TABLE}.intentMatchSource ;;
   }
 
   dimension: intent_name {
+    group_label: "Dialogflow Intent Match"
     type: string
     description: "The resource name of the matched intent."
     sql: ${TABLE}.intentName ;;
   }
 
   dimension: max_confidence {
+    group_label: "Dialogflow Intent Match"
     type: number
     description: "The maximum confidence seen for the intent in the current transcript chunk."
     sql: ${TABLE}.maxConfidence ;;
