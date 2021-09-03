@@ -2,7 +2,7 @@ view: insights_data {
  # sql_table_name: `my_insights_dataset.my_insights_table` ;;
   #sql_table_name: `dmv_ccai_insights.insights_data`;;
   sql_table_name: @{INSIGHTS_TABLE} ;;
-  view_label: "Conversations"
+  view_label: "1: Conversations"
 
   dimension: agent_id {
     type: string
@@ -11,12 +11,14 @@ view: insights_data {
   }
 
   dimension: agent_sentiment_magnitude {
+    group_label: "Sentiment"
     type: number
     description: "A non-negative number from zero to infinity that represents the abolute magnitude of the agent sentiment regardless of score."
     sql: ${TABLE}.agentSentimentMagnitude ;;
   }
 
   dimension: agent_sentiment_score {
+    group_label: "Sentiment"
     type: number
     description: "Agent sentiment score between -1.0 (negative) and 1.0 (positive)."
     sql: ${TABLE}.agentSentimentScore ;;
@@ -36,12 +38,14 @@ view: insights_data {
   }
 
   dimension: client_sentiment_magnitude {
+    group_label: "Sentiment"
     type: number
     description: "A non-negative number from zero to infinity that represents the abolute magnitude of client sentiment regardless of score."
     sql: ${TABLE}.clientSentimentMagnitude ;;
   }
 
   dimension: client_sentiment_score {
+    group_label: "Sentiment"
     type: number
     description: "Client sentiment score between -1.0 (negative) and 1.0 (positive)."
     sql: ${TABLE}.clientSentimentScore ;;
@@ -62,6 +66,7 @@ view: insights_data {
   }
 
   dimension: day {
+    group_label: "Dates"
     hidden: yes
     type: number
     description: "Day date part of `load_timestamp_utc`."
@@ -100,6 +105,7 @@ view: insights_data {
   }
 
   dimension_group: load {
+    group_label: "Dates"
     label: "Import"
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
@@ -108,6 +114,7 @@ view: insights_data {
   }
 
   dimension: month {
+    group_label: "Dates"
     hidden: yes
     type: number
     description: "Month date part of `load_timestamp_utc`."
@@ -147,6 +154,7 @@ view: insights_data {
   }
 
   dimension_group: start {
+    group_label: "Dates"
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation started."
@@ -154,6 +162,7 @@ view: insights_data {
   }
 
   dimension_group: end {
+    group_label: "Dates"
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC at which the conversation ended."
@@ -184,12 +193,20 @@ view: insights_data {
     sql: ${TABLE}.turnCount ;;
   }
 
+  dimension: type {
+    description: "If the call was never transferred to a human, then the call is classified as Virtual. If the call was transferred to a human, then the call is classified as human."
+    type: string
+    sql: case when ${human_agent_turns.first_turn_human_agent} is null then "Virtual Agent"
+      else "Human Agent" end;;
+  }
+
   dimension: words {
     hidden: yes
     sql: ${TABLE}.words ;;
   }
 
   dimension: year {
+    group_label: "Dates"
     hidden: yes
     type: number
     description: "Year date part of `load_timestamp_utc`."
@@ -197,6 +214,7 @@ view: insights_data {
   }
 
   dimension: sentiment_category {
+    group_label: "Sentiment"
     type: string
     description: "Negative sentiment score is bad, 0 sentiment score is neutral, and positive sentiment score is good."
     sql: case when ${client_sentiment_score} <0 then "bad"
@@ -204,16 +222,11 @@ view: insights_data {
     else "neutral" end;;
   }
 
-  dimension: type {
-    description: "If the call was never transferred to a human, then the call is classified as Virtual. If the call was transferred to a human, then the call is classified as human."
-    type: string
-    sql: case when ${human_agent_turns.first_turn_human_agent} is null then "Virtual Agent"
-    else "Human Agent" end;;
-  }
 
   ###################### Period over Period Reporting Metrics ######################
 
   parameter: period {
+    hidden: yes
     label: "Timeframe"
     view_label: "Period over Period"
     description: "Use with Period Over Period Date to choose the timeframe for analysis (WTD, MTD, QTD, YTD)"
@@ -239,6 +252,7 @@ view: insights_data {
   }
 
   parameter: pop_date {
+    hidden: yes
     label: "Period Over Period Date"
     view_label: "Period over Period"
     description: "Choose your start date for period over period analysis. Uses Conversation Import Date."
@@ -249,18 +263,18 @@ view: insights_data {
 
   # To get start date we need to get either first day of the year, month or quarter
   dimension: first_date_in_period {
+    hidden: yes
     view_label: "Period over Period"
     datatype: date
     type: date
-    hidden: no
     sql: DATE_TRUNC(date({% parameter pop_date %}), {% parameter period %});;
   }
 
   #Now get the total number of days in the period
   dimension: days_in_period {
+    hidden: yes
     view_label: "Period over Period"
     type: number
-    hidden: yes
     sql: DATE_DIFF(date({% parameter pop_date %}),${first_date_in_period}, DAY) ;;
   }
 
@@ -276,15 +290,16 @@ view: insights_data {
 
   #Now get the last date in the prior period
   dimension: last_date_in_prior_period {
+    hidden: yes
     datatype: date
     view_label: "Period over Period"
     type: date
-    hidden: yes
     sql: DATE_ADD(date(${first_date_in_prior_period}), INTERVAL ${days_in_period} DAY) ;;
   }
 
   # Now figure out which period each date belongs in
   dimension: period_selected {
+    hidden: yes
     label: "Period Over Period"
     view_label: "Period over Period"
     type: string
@@ -303,8 +318,8 @@ view: insights_data {
 
 
   dimension: days_from_period_start {
+    hidden: yes
     view_label: "Period over Period"
-    hidden:  yes
     type: number
     sql: CASE WHEN ${period_selected} = 'Selected {% parameter period %} to Date'
           THEN DATE_DIFF(${load_date}, ${first_date_in_period}, DAY)
@@ -336,18 +351,21 @@ view: insights_data {
   }
 
   measure: bad_sentiment_conversation_count {
+    group_label: "Sentiment"
     type: count
     filters: [sentiment_category: "bad"]
     drill_fields: [details*]
   }
 
   measure: good_sentiment_conversation_count {
+    group_label: "Sentiment"
     type: count
     filters: [sentiment_category: "good"]
     drill_fields: [details*]
   }
 
   measure: neutral_sentiment_conversation_count {
+    group_label: "Sentiment"
     type: count
     filters: [sentiment_category: "neutral"]
     drill_fields: [details*]
@@ -389,6 +407,7 @@ view: insights_data {
   }
 
   measure: bad_sentiment_ratio {
+    group_label: "Sentiment"
     type: number
     sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_0
@@ -396,6 +415,7 @@ view: insights_data {
   }
 
   measure: good_sentiment_ratio {
+    group_label: "Sentiment"
     type: number
     sql: ${good_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
@@ -403,6 +423,7 @@ view: insights_data {
   }
 
   measure: neutral_sentiment_ratio {
+    group_label: "Sentiment"
     type: number
     sql: ${neutral_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
@@ -500,12 +521,14 @@ view: insights_data__entities {
   }
 
   dimension: sentiment_magnitude {
+    group_label: "Sentiment"
     type: number
     description: "A non-negative number from zero to infinity that represents the abolute magnitude of the entity sentiment regardless of score."
     sql: ${TABLE}.sentimentMagnitude ;;
   }
 
   dimension: sentiment_score {
+    group_label: "Sentiment"
     type: number
     description: "The entity sentiment score between -1.0 (negative) and 1.0 (positive)."
     sql: ${TABLE}.sentimentScore ;;
@@ -536,6 +559,7 @@ view: insights_data__sentences {
   }
 
   dimension_group: created {
+
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "Time in UTC that the conversation message took place, if provided."
@@ -601,12 +625,14 @@ view: insights_data__sentences {
   }
 
   dimension: sentiment_magnitude {
+    group_label: "Sentiment"
     type: number
     description: "A non-negative number from zero to infinity that represents the abolute magnitude of the sentence sentiment regardless of score."
     sql: ${TABLE}.sentimentMagnitude ;;
   }
 
   dimension: sentiment_score {
+    group_label: "Sentiment"
     type: number
     description: "The sentence sentiment score between -1.0 (negative) and 1.0 (positive)."
     sql: ${TABLE}.sentimentScore ;;
@@ -681,6 +707,7 @@ view: insights_data__sentences__annotations {
 view: insights_data__sentences__intent_match_data {
   dimension: display_name {
     group_label: "Intent Match"
+    label: "Intent Match Display Name"
     type: string
     description: "The human readable name of the matched intent."
     sql: ${TABLE}.displayName ;;
@@ -688,6 +715,7 @@ view: insights_data__sentences__intent_match_data {
 
   dimension: intent_id {
     group_label: "Intent Match"
+    label: "Intent Match Intent ID"
     type: string
     description: "The unique ID of the matched intent."
     sql: ${TABLE}.intentId ;;
@@ -696,6 +724,7 @@ view: insights_data__sentences__intent_match_data {
 
 view: insights_data__sentences__phrase_match_data {
   dimension: display_name {
+    label: "Phrase Match Display Name"
     group_label: "Phrase Match"
     type: string
     description: "The human readable name of the phrase matcher."
@@ -711,6 +740,7 @@ view: insights_data__sentences__phrase_match_data {
 
   dimension: revision_id {
     group_label: "Phrase Match"
+    label: "Phrase Match Revision ID"
     type: number
     description: "Indicating the revision of the phrase matcher."
     sql: ${TABLE}.revisionId ;;
@@ -719,28 +749,32 @@ view: insights_data__sentences__phrase_match_data {
 
 view: insights_data__sentences__dialogflow_intent_match_data {
   dimension: display_name {
-    group_label: "Dialogflow Intent Match"
+    group_label: "Dialogflow Intent Match (DIM)"
+    label: "DIM Display Name"
     type: string
     description: "The human readable name of the matched intent."
     sql: ${TABLE}.displayName ;;
   }
 
   dimension: intent_match_source {
-    group_label: "Dialogflow Intent Match"
+    group_label: "Dialogflow Intent Match (DIM)"
+    label: "DIM Source"
     type: string
     description: "The source of the matched intent, either ANALYZE_CONTENT or DETECT_INTENT."
     sql: ${TABLE}.intentMatchSource ;;
   }
 
   dimension: intent_name {
-    group_label: "Dialogflow Intent Match"
+    group_label: "Dialogflow Intent Match (DIM)"
+    label: "DIM Intent Name"
     type: string
     description: "The resource name of the matched intent."
     sql: ${TABLE}.intentName ;;
   }
 
   dimension: max_confidence {
-    group_label: "Dialogflow Intent Match"
+    group_label: "Dialogflow Intent Match (DIM)"
+    label: "DIM Max Confidence"
     type: number
     description: "The maximum confidence seen for the intent in the current transcript chunk."
     sql: ${TABLE}.maxConfidence ;;

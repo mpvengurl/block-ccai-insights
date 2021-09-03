@@ -13,7 +13,7 @@ persist_with: insights_default_datagroup
 explore: insights_data {
   label: "CCAI Insights"
   join: insights_data__words {
-    view_label: "Words"
+    view_label: "4: Words"
     sql: LEFT JOIN UNNEST(${insights_data.words}) as insights_data__words ;;
     relationship: one_to_many
   }
@@ -31,44 +31,44 @@ explore: insights_data {
   }
 
   join: insights_data__entities {
-    view_label: "Entities"
+    view_label: "3: Entities"
     sql: LEFT JOIN UNNEST(${insights_data.entities}) as insights_data__entities ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences {
-    view_label: "Sentences"
+    view_label: "2: Sentences"
     sql: LEFT JOIN UNNEST(${insights_data.sentences}) as insights_data__sentences ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences__annotations {
-    view_label: "Sentences"
+    view_label: "2: Sentences"
 
     sql: LEFT JOIN UNNEST(${insights_data__sentences.annotations}) as insights_data__sentences__annotations ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences__intent_match_data {
-    view_label: "Sentences"
+    view_label: "2: Sentences"
     sql: LEFT JOIN UNNEST(${insights_data__sentences.intent_match_data}) as insights_data__sentences__intent_match_data ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences__phrase_match_data {
-    view_label: "Sentences"
+    view_label: "2: Sentences"
     sql: LEFT JOIN UNNEST(${insights_data__sentences.phrase_match_data}) as insights_data__sentences__phrase_match_data ;;
     relationship: one_to_many
   }
 
   join: insights_data__sentences__dialogflow_intent_match_data {
-    view_label: "Sentences"
+    view_label: "2: Sentences"
     sql: LEFT JOIN UNNEST(${insights_data__sentences.dialogflow_intent_match_data}) as insights_data__sentences__dialogflow_intent_match_data ;;
     relationship: one_to_many
   }
 
   join: sentence_turn_number {
-    view_label: "Sentences"
+    view_label: "2: Sentences"
     relationship: one_to_many
     sql_on: ${insights_data.conversation_name}=${sentence_turn_number.conversation_name}
     and ${insights_data__sentences.sentence} = ${sentence_turn_number.sentence}
@@ -76,13 +76,13 @@ explore: insights_data {
   }
 
   join: human_agent_turns {
-    view_label: "Conversations"
+    view_label: "1: Conversations"
     relationship: one_to_one
     sql_on: ${insights_data.conversation_name} = ${human_agent_turns.conversation_name} ;;
   }
 
   join: daily_facts {
-    view_label: "Conversations"
+    view_label: "1: Conversations"
     relationship: many_to_one
     sql_on: ${insights_data.load_date}=${daily_facts.load_date};;
   }
