@@ -1,6 +1,4 @@
 view: insights_data {
- # sql_table_name: `my_insights_dataset.my_insights_table` ;;
-  #sql_table_name: `dmv_ccai_insights.insights_data`;;
   sql_table_name: @{INSIGHTS_TABLE} ;;
   view_label: "1: Conversations"
 
@@ -504,7 +502,12 @@ view: insights_data__topics {
   measure: count {
     type: count_distinct
     sql: ${name} ;;
+    drill_fields: [topic_detail*]
   }
+
+  set: topic_detail {
+    fields:[name, score]
+    }
 }
 
 view: insights_data__entities {
@@ -549,6 +552,11 @@ view: insights_data__entities {
   measure: count {
     type: count_distinct
     sql: ${name} ;;
+    drill_fields: [entity_detail*]
+  }
+
+  set: entity_detail {
+    fields: [name,type,speaker_tag,sentiment_score, sentiment_magnitude,salience]
   }
 }
 
