@@ -332,78 +332,78 @@ view: insights_data {
 ### Measures ###
   measure: conversation_count {
     type: count
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: contained_count {
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: count
     filters: [type: "Virtual Agent"]
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: contained_percentage {
-    description: ""
+    description: "A conversation is considered contained if it was never passed to a human agent."
     type: number
     sql: ${contained_count}/${conversation_count} ;;
     value_format_name: percent_0
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: bad_sentiment_conversation_count {
     group_label: "Sentiment"
     type: count
     filters: [sentiment_category: "bad"]
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: good_sentiment_conversation_count {
     group_label: "Sentiment"
     type: count
     filters: [sentiment_category: "good"]
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: neutral_sentiment_conversation_count {
     group_label: "Sentiment"
     type: count
     filters: [sentiment_category: "neutral"]
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: average_turn_count {
     type: average
     sql: ${turn_count} ;;
     value_format_name: decimal_0
-    drill_fields: [details*, turn_count]
+    drill_fields: [convo_info*, turn_count]
   }
 
   measure: average_conversation_minutes {
     type: average
     sql: ${minutes_conversation} ;;
     value_format_name: decimal_0
-    drill_fields: [details*, duration_minutes]
+    drill_fields: [convo_info*, duration_minutes]
   }
 
   measure: average_silence_percentage {
     type: average
     sql: ${silence_percentage} ;;
     value_format_name: percent_2
-    drill_fields: [details*, silence_percentage, silence_minutes]
+    drill_fields: [convo_info*, silence_percentage, silence_minutes]
   }
 
   measure: average_agent_speaking_percentage {
     type: average
     sql: ${agent_speaking_percentage} ;;
     value_format_name: percent_2
-    drill_fields: [details*, agent_speaking_percentage]
+    drill_fields: [convo_info*, agent_speaking_percentage]
   }
 
   measure: average_client_speaking_percentage {
     type: average
     sql: ${client_speaking_percentage} ;;
     value_format_name: percent_2
-    drill_fields: [details*, client_speaking_percentage]
+    drill_fields: [convo_info*, client_speaking_percentage]
   }
 
   measure: bad_sentiment_ratio {
@@ -411,7 +411,7 @@ view: insights_data {
     type: number
     sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_0
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: good_sentiment_ratio {
@@ -419,7 +419,7 @@ view: insights_data {
     type: number
     sql: ${good_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
   measure: neutral_sentiment_ratio {
@@ -427,11 +427,11 @@ view: insights_data {
     type: number
     sql: ${neutral_sentiment_conversation_count}/${conversation_count} ;;
     value_format_name: percent_2
-    drill_fields: [details*]
+    drill_fields: [convo_info*]
   }
 
- set: details {
-   fields: [conversation_name, load_time, agent_id, sentiment_category]
+ set: convo_info {
+   fields: [conversation_name, load_time, agent_id, type, sentiment_category]
  }
 }
 
@@ -860,7 +860,6 @@ GROUP BY
     value_format_name: decimal_0
   }
 }
-
 
 view: daily_facts {
 
