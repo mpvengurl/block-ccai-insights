@@ -26,7 +26,7 @@ explore: insights_data {
 
   join: insights_data__topics {
     view_label: "Topics"
-    sql: LEFT JOIN UNNEST(${insights_data.topics}s}) as insights_data__topics ;;
+    sql: LEFT JOIN UNNEST(${insights_data.topics}) as insights_data__topics ;;
     relationship: one_to_many
   }
 

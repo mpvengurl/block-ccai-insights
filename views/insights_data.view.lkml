@@ -211,13 +211,22 @@ view: insights_data {
     sql: ${TABLE}.year ;;
   }
 
-  dimension: sentiment_category {
+  dimension: client_sentiment_category {
     group_label: "Sentiment"
     type: string
     description: "Negative sentiment score is bad, 0 sentiment score is neutral, and positive sentiment score is good."
     sql: case when ${client_sentiment_score} <0 then "bad"
     when ${client_sentiment_score} >0 then "good"
     else "neutral" end;;
+  }
+
+  dimension: agent_sentiment_category {
+    group_label: "Sentiment"
+    type: string
+    description: "Negative sentiment score is bad, 0 sentiment score is neutral, and positive sentiment score is good."
+    sql: case when ${agent_sentiment_score} <0 then "bad"
+          when ${agent_sentiment_score} >0 then "good"
+          else "neutral" end;;
   }
 
 
@@ -333,6 +342,7 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
+#NYDMV
   measure: contained_count {
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: count
@@ -340,6 +350,7 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
+#NYDMV
   measure: contained_percentage {
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: number
@@ -348,24 +359,30 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
+#NYDMV
   measure: bad_sentiment_conversation_count {
     group_label: "Sentiment"
+    description: "Based on client sentiment score"
     type: count
-    filters: [sentiment_category: "bad"]
+    filters: [client_sentiment_category: "bad"]
     drill_fields: [convo_info*]
   }
 
+#NYDMV
   measure: good_sentiment_conversation_count {
     group_label: "Sentiment"
+    description: "Based on client sentiment score"
     type: count
-    filters: [sentiment_category: "good"]
+    filters: [client_sentiment_category: "good"]
     drill_fields: [convo_info*]
   }
 
+#NYDMV
   measure: neutral_sentiment_conversation_count {
     group_label: "Sentiment"
+    description: "Based on client sentiment score"
     type: count
-    filters: [sentiment_category: "neutral"]
+    filters: [client_sentiment_category: "neutral"]
     drill_fields: [convo_info*]
   }
 
@@ -404,6 +421,7 @@ view: insights_data {
     drill_fields: [convo_info*, client_speaking_percentage]
   }
 
+  #NYDMV
   measure: bad_sentiment_ratio {
     group_label: "Sentiment"
     type: number
@@ -412,6 +430,7 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
+  #NYDMV
   measure: good_sentiment_ratio {
     group_label: "Sentiment"
     type: number
@@ -420,6 +439,7 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
+  #NYDMV
   measure: neutral_sentiment_ratio {
     group_label: "Sentiment"
     type: number
@@ -428,8 +448,24 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
+  measure: average_client_sentiment_score {
+    group_label: "Sentiment"
+    type: average
+    sql: ${client_sentiment_score} ;;
+    value_format_name: decimal_2
+    drill_fields: [convo_info*,client_sentiment_score]
+  }
+
+  measure: average_agent_sentiment_score {
+    group_label: "Sentiment"
+    type: average
+    sql: ${agent_sentiment_score} ;;
+    value_format_name: decimal_2
+    drill_fields: [convo_info*,agent_sentiment_score]
+  }
+
  set: convo_info {
-   fields: [conversation_name, load_time, agent_id, type, sentiment_category]
+   fields: [conversation_name, load_time, agent_id, type, client_sentiment_category]
  }
 }
 
@@ -857,6 +893,7 @@ GROUP BY
 
   dimension: conversation_name {
     hidden: yes
+    primary_key:  yes
     description: "Name of the conversation resource."
   }
   dimension: first_turn_human_agent {
