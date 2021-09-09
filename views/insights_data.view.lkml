@@ -465,7 +465,7 @@ view: insights_data {
   }
 
  set: convo_info {
-   fields: [conversation_name, load_time, agent_id, type, client_sentiment_category]
+   fields: [conversation_name, load_time, type, client_sentiment_category]
  }
 }
 
