@@ -19,13 +19,13 @@ explore: insights_data {
   }
 
   join: insights_data__labels {
-    view_label: "Labels"
+    view_label: "1: Conversations"
     sql: LEFT JOIN UNNEST(${insights_data.labels}) as insights_data__labels ;;
     relationship: one_to_many
   }
 
   join: insights_data__topics {
-    view_label: "Topics"
+    view_label: "1: Conversations"
     sql: LEFT JOIN UNNEST(${insights_data.topics}) as insights_data__topics ;;
     relationship: one_to_many
   }

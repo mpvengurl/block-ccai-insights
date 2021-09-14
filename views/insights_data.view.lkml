@@ -510,12 +510,16 @@ view: insights_data__words {
 
 view: insights_data__labels {
   dimension: key {
+    label: "Label Key"
+    group_label: "Labels"
     type: string
     description: "User-provided label key."
     sql: ${TABLE}.key ;;
   }
 
   dimension: value {
+    label: "Label Value"
+    group_label: "Labels"
     type: string
     description: "User-provided label value."
     sql: ${TABLE}.value ;;
@@ -524,18 +528,24 @@ view: insights_data__labels {
 
 view: insights_data__topics {
   dimension: name {
+    label: "Topic Name"
+    group_label: "Topics"
     type: string
     description: "Name of the topic."
     sql: ${TABLE}.name ;;
   }
 
   dimension: score {
+    label: "Topic Score"
+    group_label: "Topics"
     type: number
     description: "Score indicating the likelihood of the topic assignment, between 0 and 1.0."
     sql: ${TABLE}.score ;;
   }
 
   measure: count {
+    label: "Topic Count"
+    group_label: "Topics"
     type: count_distinct
     sql: ${name} ;;
     drill_fields: [topic_detail*]
