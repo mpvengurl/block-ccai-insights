@@ -401,9 +401,15 @@ view: insights_data {
   }
 
   measure: num_of_characters {
-    label: "Number of Characters in Conversation"
+    label: "Number of Characters"
     type: sum
     sql: length(${transcript}) ;;
+  }
+
+  measure: num_of_characters_no_space {
+    label: "Number of Characters (no spaces)"
+    type: sum
+    sql: length(REGEXP_REPLACE(${transcript}, ' ', '')) ;;
   }
 
   measure: average_turn_count {
@@ -517,6 +523,7 @@ view: insights_data__words {
   }
 
   dimension: word {
+    primary_key: yes
     type: string
     description: "The transcribed word."
     sql: ${TABLE}.word ;;
@@ -525,12 +532,6 @@ view: insights_data__words {
   measure: count {
     type: count_distinct
     sql: ${word} ;;
-  }
-
-  measure: num_of_characters_words {
-    label: "Number of Characters in Word"
-    type: sum
-    sql: length(${word}) ;;
   }
 }
 
@@ -699,6 +700,7 @@ view: insights_data__sentences {
   }
 
   dimension: sentence {
+    primary_key: yes
     type: string
     description: "The transcribed sentence."
     sql: ${TABLE}.sentence ;;
@@ -734,12 +736,6 @@ view: insights_data__sentences {
   measure: count {
     type: count_distinct
     sql: ${sentence} ;;
-  }
-
-  measure: num_of_characters_sentences {
-    label: "Number of Characters in Sentence"
-    type: sum
-    sql: length(${sentence}) ;;
   }
 }
 
