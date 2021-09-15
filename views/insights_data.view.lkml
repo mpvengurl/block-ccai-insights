@@ -948,7 +948,7 @@ view: daily_facts {
 
   derived_table: {
     explore_source: insights_data {
-      column: load_date {}
+      column: load_raw {}
       column: conversation_count {}
       column: contained_count {}
       column: good_sentiment_conversation_count {}
@@ -959,17 +959,17 @@ view: daily_facts {
       column: contained_percentage {}
     }
   }
-  dimension: load_date {
+  dimension: load_raw {
+    primary_key: yes
     hidden: yes
-    type: date
+    type: date_time
   }
   dimension: conversation_count {
     hidden: yes
     label: "Insights Data: Conversations Conversation Count"
     type: number
   }
-  measure: average_daily_conversations {
-    group_label: "Daily Metrics"
+  measure: avg_daily_conversations {
     description: "Average Conversations Per Day"
     type: average
     sql: ${conversation_count} ;;
@@ -980,8 +980,7 @@ view: daily_facts {
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: number
   }
-  measure: average_daily_contained_conversations {
-    group_label: "Daily Metrics"
+  measure: avg_daily_contained_conversations {
     description: "Average Contained Conversations Per Day"
     type: average
     sql: ${contained_count} ;;
@@ -991,8 +990,7 @@ view: daily_facts {
     label: "Insights Data: Conversations Good Sentiment Conversation Count"
     type: number
   }
-  measure: average_daily_good_sentiment_conversations {
-    group_label: "Daily Metrics"
+  measure: avg_daily_good_sentiment_conversations {
     description: "Average Good Sentiment Conversations Per Day"
     type: average
     sql: ${good_sentiment_conversation_count} ;;
@@ -1002,8 +1000,7 @@ view: daily_facts {
     label: "Insights Data: Conversations Bad Sentiment Conversation Count"
     type: number
   }
-  measure: average_daily_bad_sentiment_conversations {
-    group_label: "Daily Metrics"
+  measure: avg_daily_bad_sentiment_conversations {
     description: "Average Bad Sentiment Conversations Per Day"
     type: average
     sql: ${bad_sentiment_conversation_count} ;;
@@ -1014,8 +1011,7 @@ view: daily_facts {
     label: "Insights Data: Conversations Neutral Sentiment Conversation Count"
     type: number
   }
-  measure: average_daily_neutral_conversations {
-    group_label: "Daily Metrics"
+  measure: avg_daily_neutral_conversations {
     description: "Average Neutral Sentiment Conversations Per Day"
     type: average
     sql: ${neutral_sentiment_conversation_count} ;;
@@ -1025,8 +1021,7 @@ view: daily_facts {
     label: "Insights Data: Entities Count"
     type: number
   }
-  measure: average_daily_entities {
-    group_label: "Daily Metrics"
+  measure: avg_daily_entities {
     description: "Average Entities Per Day"
     type: average
     sql: ${entity_count} ;;
@@ -1035,8 +1030,7 @@ view: daily_facts {
     hidden: yes
     type: number
   }
-  measure: average_daily_topics {
-    group_label: "Daily Metrics"
+  measure: avg_daily_topics {
     description: "Average Topics Per Day"
     type: average
     sql: ${topic_count} ;;
@@ -1045,8 +1039,7 @@ view: daily_facts {
     hidden: yes
     type: number
   }
-  measure: average_daily_contained_percentage {
-    group_label: "Daily Metrics"
+  measure: avg_daily_contained_percentage {
     description: "Average Daily Contained Percentage Per Day"
     type: average
     sql: ${contained_percentage} ;;

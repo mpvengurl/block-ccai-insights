@@ -83,8 +83,11 @@ explore: insights_data {
   }
 
   join: daily_facts {
-    view_label: "1: Conversations"
+    view_label: "Daily Metrics"
     relationship: many_to_one
-    sql_on: ${insights_data.load_date}=${daily_facts.load_date};;
+    sql_on: ${insights_data.load_raw}=${daily_facts.load_raw};;
   }
+
 }
+
+explore: daily_facts {}
