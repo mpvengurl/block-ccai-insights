@@ -400,6 +400,12 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
+  measure: num_of_characters {
+    label: "Number of Characters in Conversation"
+    type: sum
+    sql: length(${transcript}) ;;
+  }
+
   measure: average_turn_count {
     type: average
     sql: ${turn_count} ;;
@@ -481,9 +487,6 @@ view: insights_data {
  set: convo_info {
    fields: [conversation_name, load_time, type, client_sentiment_category]
  }
- set: sentence_drill {
-   fields: [sentence_turn_number.turn_number, insights_data__sentences.sentence, insights_data__sentences.participant_role]
- }
 }
 
 view: insights_data__words {
@@ -522,6 +525,12 @@ view: insights_data__words {
   measure: count {
     type: count_distinct
     sql: ${word} ;;
+  }
+
+  measure: num_of_characters_words {
+    label: "Number of Characters in Word"
+    type: sum
+    sql: length(${word}) ;;
   }
 }
 
