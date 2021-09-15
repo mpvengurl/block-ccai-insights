@@ -221,18 +221,22 @@ view: insights_data {
     group_label: "Sentiment"
     type: string
     description: "Negative sentiment score is bad, 0 sentiment score is neutral, and positive sentiment score is good."
-    sql: case when ${client_sentiment_score} <0 then "bad"
-    when ${client_sentiment_score} >0 then "good"
-    else "neutral" end;;
+    sql: CASE
+    WHEN ${client_sentiment_score} <= -0.1 AND ${client_sentiment_magnitude} > 0.1  THEN "Negative"
+    WHEN ${client_sentiment_score} >= 0.1 AND ${client_sentiment_magnitude} > 0.1 THEN "Positive"
+    WHEN (${client_sentiment_score} < 0.1 OR ${client_sentiment_score} > -0.1) AND ${client_sentiment_magnitude} > 0.1 THEN "Mixed"
+    ELSE "Neutral" END;;
   }
 
   dimension: agent_sentiment_category {
     group_label: "Sentiment"
     type: string
     description: "Negative sentiment score is bad, 0 sentiment score is neutral, and positive sentiment score is good."
-    sql: case when ${agent_sentiment_score} <0 then "bad"
-          when ${agent_sentiment_score} >0 then "good"
-          else "neutral" end;;
+    sql: CASE
+    WHEN ${agent_sentiment_score} <= -0.1 AND ${agent_sentiment_magnitude} > 0.25  THEN "Negative"
+    WHEN ${agent_sentiment_score} >= 0.1 AND ${agent_sentiment_magnitude} > 0.25 THEN "Positive"
+    WHEN (${agent_sentiment_score} < 0.1 OR ${agent_sentiment_score} > -0.1) AND ${agent_sentiment_magnitude} > 0.25 THEN "Mixed"
+    ELSE "Neutral" END;;
   }
 
 

@@ -2,6 +2,7 @@ connection: "@{CONNECTION}"
 
 # include all the views
 include: "/views/**/*.view"
+include: "/refinements/**/*.view"
 
 datagroup: insights_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
