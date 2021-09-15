@@ -61,11 +61,15 @@ view: insights_data {
     primary_key: yes
     description: "Name of the conversation resource."
     sql: ${TABLE}.conversationName ;;
-    drill_fields: [sentence_turn_number.turn_number_sentence]
+    #link: {
+    #  label: "Sentences Drill - Explore"
+    #  url: "https://nydmvtest.cloud.looker.com/explore/insights_demo/insights_data?qid=LkNbSc9soYLmQo39wf47Bk&toggle=fil,vis#drillmenu&fields=sentence_turn_number.turn_number,
+    #  %20insights_data__sentences.sentence,%20insights_data__sentences.participant_role&f[insights_data.conversation_name]={{ value }}&limit=1000&sorts=sentence_turn_number.turn_number+asc"
+    #  }
     link: {
-      label: "Sentences Drill"
-      url: "https://nydmvtest.cloud.looker.com/explore/insights_demo/insights_data?qid=LkNbSc9soYLmQo39wf47Bk&toggle=fil,vis#drillmenu&fields=sentence_turn_number.turn_number,
-      %20insights_data__sentences.sentence,%20insights_data__sentences.participant_role&f[insights_data.conversation_name]={{ value }}&limit=1000&sorts=sentence_turn_number.turn_number+asc"}
+      label: "Conversation Lookup Dashboard"
+      url: "https://nydmvtest.cloud.looker.com/dashboards-next/4?Conversation+Name={{ value}}"
+    }
   }
 
   dimension: day {
@@ -885,13 +889,6 @@ view: sentence_turn_number {
   dimension: turn_number {
     type: number
     description: "The turn number of the sentence within the conversation."
-  }
-  dimension: turn_number_sentence {
-    description: "The turn number of the sentence concatonated with the sentence text."
-    label: "Sentence for Drills"
-    type: string
-    sql: concat(${turn_number},": ",${sentence})
-    ;;
   }
 }
 
