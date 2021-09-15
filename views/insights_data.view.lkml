@@ -4,7 +4,7 @@ view: insights_data {
 
   dimension: agent_id {
     type: string
-    description: "The user-provided identifier for the agent who handled the conversation."
+    description: "The user-provided identifier for the human agent who handled the conversation."
     sql: ${TABLE}.agentId ;;
   }
 
@@ -61,6 +61,11 @@ view: insights_data {
     primary_key: yes
     description: "Name of the conversation resource."
     sql: ${TABLE}.conversationName ;;
+    drill_fields: [sentence_turn_number.turn_number_sentence]
+    link: {
+      label: "Sentences Drill"
+      url: "https://nydmvtest.cloud.looker.com/explore/insights_demo/insights_data?qid=LkNbSc9soYLmQo39wf47Bk&toggle=fil,vis#drillmenu&fields=sentence_turn_number.turn_number,
+      %20insights_data__sentences.sentence,%20insights_data__sentences.participant_role&f[insights_data.conversation_name]={{ value }}&limit=1000&sorts=sentence_turn_number.turn_number+asc"}
   }
 
   dimension: day {
@@ -168,6 +173,7 @@ view: insights_data {
   }
 
   dimension_group: conversation {
+    description: "The time between conversation start and end."
     type: duration
     intervals: [second, minute, hour]
     sql_start: ${start_raw} ;;
@@ -466,6 +472,9 @@ view: insights_data {
 
  set: convo_info {
    fields: [conversation_name, load_time, type, client_sentiment_category]
+ }
+ set: sentence_drill {
+   fields: [sentence_turn_number.turn_number, insights_data__sentences.sentence, insights_data__sentences.participant_role]
  }
 }
 
@@ -872,6 +881,13 @@ view: sentence_turn_number {
   dimension: turn_number {
     type: number
     description: "The turn number of the sentence within the conversation."
+  }
+  dimension: turn_number_sentence {
+    description: "The turn number of the sentence concatonated with the sentence text."
+    label: "Sentence for Drills"
+    type: string
+    sql: concat(${turn_number},": ",${sentence})
+    ;;
   }
 }
 
