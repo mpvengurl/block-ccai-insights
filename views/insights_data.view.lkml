@@ -491,7 +491,7 @@ view: insights_data {
   }
 
  set: convo_info {
-   fields: [conversation_name, load_time, type, client_sentiment_category]
+   fields: [conversation_name, turn_count,load_time, duration_minutes, type, client_sentiment_category]
  }
 }
 
@@ -691,7 +691,11 @@ view: insights_data__sentences {
   dimension: participant_role {
     type: string
     description: "Participant role, if provided."
-    sql: ${TABLE}.participantRole ;;
+    suggestions: ["Virtual Agent","Human Agent","End User"]
+    sql: case when ${TABLE}.participantRole='AUTOMATED_AGENT' then 'Virtual Agent'
+            when ${TABLE}.participantRole='HUMAN_AGENT' then 'Human Agent'
+            when ${TABLE}.participantRole='END_USER' then 'End User'
+            else ${TABLE}.participantRole end;;
   }
 
   dimension: phrase_match_data {
@@ -845,6 +849,7 @@ view: insights_data__sentences__dialogflow_intent_match_data {
   }
 
   dimension: intent_match_source {
+    hidden: yes
     group_label: "Dialogflow Intent Match (DIM)"
     label: "DIM Source"
     type: string
@@ -853,6 +858,7 @@ view: insights_data__sentences__dialogflow_intent_match_data {
   }
 
   dimension: intent_name {
+    hidden: yes
     group_label: "Dialogflow Intent Match (DIM)"
     label: "DIM Intent Name"
     type: string
