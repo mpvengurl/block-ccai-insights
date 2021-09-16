@@ -737,6 +737,12 @@ view: insights_data__sentences {
     type: count_distinct
     sql: ${sentence} ;;
   }
+
+  measure: num_of_characters_sentence {
+    label: "Number of Characters in Sentence"
+    type: sum
+    sql: length(${sentence}) ;;
+  }
 }
 
 view: insights_data__sentences__annotations {
