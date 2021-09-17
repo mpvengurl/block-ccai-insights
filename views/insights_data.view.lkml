@@ -222,7 +222,9 @@ view: insights_data {
   }
 
   ################## Sentiment Analysis ###########################
-  #Configure manual score and magnitude thresholds here in the default_value field, or within the UI.
+  #Configure manual score and magnitude thresholds here in the default_value parameter. To allow users to eadjust these values in the UI, set the hidden parameter to no.
+  #Documentation to guide interpretation here:https://cloud.google.com/natural-language/docs/basics#interpreting_sentiment_analysis_values
+
   parameter: sentiment_score_threshold {
     description: "Score of the sentiment ranges between -1.0 (negative) and 1.0 (positive) and corresponds to the overall emotional leaning of the text. Set a custom minimum threshold to trigger Positive and Negative. E.g., choosing 0.05 will set Score > 0.05 to Positive, and Score < -0.05 to be Negative, while also incorporating the Magnitude selection."
     hidden:  yes #Set no if you want this exposed in the Browse/Explore
@@ -290,6 +292,98 @@ view: insights_data {
     type: average
     sql: ${agent_sentiment_category_value} ;;
     value_format_name: decimal_4
+  }
+
+  measure: bad_sentiment_conversation_count {
+    label: "Negative Conversation Count"
+    group_label: "Sentiment"
+    description: "Based on client sentiment category"
+    type: count
+    filters: [client_sentiment_category: "Negative"]
+    drill_fields: [convo_info*]
+  }
+
+  measure: good_sentiment_conversation_count {
+    label: "Positive Conversation Count"
+    group_label: "Sentiment"
+    description: "Based on client sentiment category"
+    type: count
+    filters: [client_sentiment_category: "Positive"]
+    drill_fields: [convo_info*]
+  }
+
+  measure: neutral_sentiment_conversation_count {
+    label: "Neutral Conversation Count"
+    group_label: "Sentiment"
+    description: "Based on client sentiment category"
+    type: count
+    filters: [client_sentiment_category: "Neutral"]
+    drill_fields: [convo_info*]
+  }
+
+  measure: mixed_sentiment_conversation_count {
+    label: "Mixed Conversation Count"
+    group_label: "Sentiment"
+    description: "Based on client sentiment category"
+    type: count
+    filters: [client_sentiment_category: "Mixed"]
+    drill_fields: [convo_info*]
+  }
+
+  measure: bad_sentiment_ratio {
+    label: "Negative Conversation Ratio"
+    description: "Negative Conversations / Total Conversations"
+    group_label: "Sentiment"
+    type: number
+    sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
+    value_format_name: percent_0
+    drill_fields: [convo_info*]
+  }
+
+  measure: good_sentiment_ratio {
+    label: "Positive Conversation Ratio"
+    description: "Positive Conversations / Total Conversations"
+    group_label: "Sentiment"
+    type: number
+    sql: ${good_sentiment_conversation_count}/${conversation_count} ;;
+    value_format_name: percent_0
+    drill_fields: [convo_info*]
+  }
+
+  measure: neutral_sentiment_ratio {
+    label: "Neautral Conversation Ratio"
+    description: "Neautral Conversations / Total Conversations"
+    group_label: "Sentiment"
+    type: number
+    sql: ${neutral_sentiment_conversation_count}/${conversation_count} ;;
+    value_format_name: percent_0
+    drill_fields: [convo_info*]
+  }
+
+  measure: mixed_sentiment_ratio {
+    label: "Mixed Conversation Ratio"
+    description: "Mixed Conversations / Total Conversations"
+    group_label: "Sentiment"
+    type: number
+    sql: ${mixed_sentiment_conversation_count}/${conversation_count} ;;
+    value_format_name: percent_0
+    drill_fields: [convo_info*]
+  }
+
+  measure: average_client_sentiment_score {
+    group_label: "Sentiment"
+    type: average
+    sql: ${client_sentiment_score} ;;
+    value_format_name: decimal_2
+    drill_fields: [convo_info*,client_sentiment_score]
+  }
+
+  measure: average_agent_sentiment_score {
+    group_label: "Sentiment"
+    type: average
+    sql: ${agent_sentiment_score} ;;
+    value_format_name: decimal_2
+    drill_fields: [convo_info*,agent_sentiment_score]
   }
 
 
@@ -405,7 +499,6 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
-#NYDMV
   measure: contained_count {
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: count
@@ -413,39 +506,11 @@ view: insights_data {
     drill_fields: [convo_info*]
   }
 
-#NYDMV
   measure: contained_percentage {
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: number
     sql: ${contained_count}/${conversation_count} ;;
     value_format_name: percent_0
-    drill_fields: [convo_info*]
-  }
-
-#NYDMV
-  measure: bad_sentiment_conversation_count {
-    group_label: "Sentiment"
-    description: "Based on client sentiment score"
-    type: count
-    filters: [client_sentiment_category: "bad"]
-    drill_fields: [convo_info*]
-  }
-
-#NYDMV
-  measure: good_sentiment_conversation_count {
-    group_label: "Sentiment"
-    description: "Based on client sentiment score"
-    type: count
-    filters: [client_sentiment_category: "good"]
-    drill_fields: [convo_info*]
-  }
-
-#NYDMV
-  measure: neutral_sentiment_conversation_count {
-    group_label: "Sentiment"
-    description: "Based on client sentiment score"
-    type: count
-    filters: [client_sentiment_category: "neutral"]
     drill_fields: [convo_info*]
   }
 
@@ -494,49 +559,6 @@ view: insights_data {
     sql: ${client_speaking_percentage} ;;
     value_format_name: percent_2
     drill_fields: [convo_info*, client_speaking_percentage]
-  }
-
-  #NYDMV
-  measure: bad_sentiment_ratio {
-    group_label: "Sentiment"
-    type: number
-    sql: ${bad_sentiment_conversation_count}/${conversation_count} ;;
-    value_format_name: percent_0
-    drill_fields: [convo_info*]
-  }
-
-  #NYDMV
-  measure: good_sentiment_ratio {
-    group_label: "Sentiment"
-    type: number
-    sql: ${good_sentiment_conversation_count}/${conversation_count} ;;
-    value_format_name: percent_2
-    drill_fields: [convo_info*]
-  }
-
-  #NYDMV
-  measure: neutral_sentiment_ratio {
-    group_label: "Sentiment"
-    type: number
-    sql: ${neutral_sentiment_conversation_count}/${conversation_count} ;;
-    value_format_name: percent_2
-    drill_fields: [convo_info*]
-  }
-
-  measure: average_client_sentiment_score {
-    group_label: "Sentiment"
-    type: average
-    sql: ${client_sentiment_score} ;;
-    value_format_name: decimal_2
-    drill_fields: [convo_info*,client_sentiment_score]
-  }
-
-  measure: average_agent_sentiment_score {
-    group_label: "Sentiment"
-    type: average
-    sql: ${agent_sentiment_score} ;;
-    value_format_name: decimal_2
-    drill_fields: [convo_info*,agent_sentiment_score]
   }
 
  set: convo_info {
@@ -672,6 +694,9 @@ view: insights_data__entities {
   }
 
   ########################### Sentiment Analysis ############################
+  #Configure manual score and magnitude thresholds here in the default_value parameter. To allow users to eadjust these values in the UI, set the hidden parameter to no.
+  #Documentation to guide interpretation here:https://cloud.google.com/natural-language/docs/basics#interpreting_sentiment_analysis_values
+
   parameter: sentiment_score_threshold {
     description: "Score of the sentiment ranges between -1.0 (negative) and 1.0 (positive) and corresponds to the overall emotional leaning of the text. Set a custom minimum threshold to trigger Positive and Negative. E.g., choosing 0.05 will set Score > 0.05 to Positive, and Score < -0.05 to be Negative, while also incorporating the Magnitude selection."
     hidden:  yes #Set no if you want this exposed in the Browse/Explore
@@ -819,7 +844,15 @@ view: insights_data__sentences {
     sql: ${TABLE}.startOffsetNanos ;;
   }
 
+  dimension: is_sentence_before_transfer_human {
+    description: "Identifies the sentence right before the call was transferred to a human agent."
+    type: yesno
+    sql: ${human_agent_turns.first_turn_human_agent} = ${sentence_turn_number.turn_number}-1;;
+  }
+
   ############################ Sentiment Analysis #######################
+#Configure manual score and magnitude thresholds here in the default_value parameter. To allow users to eadjust these values in the UI, set the hidden parameter to no.
+#Documentation to guide interpretation here:https://cloud.google.com/natural-language/docs/basics#interpreting_sentiment_analysis_values
 
   parameter: sentiment_score_threshold {
     description: "Score of the sentiment ranges between -1.0 (negative) and 1.0 (positive) and corresponds to the overall emotional leaning of the text. Set a custom minimum threshold to trigger Positive and Negative. E.g., choosing 0.05 will set Score > 0.05 to Positive, and Score < -0.05 to be Negative, while also incorporating the Magnitude selection."
@@ -1086,7 +1119,8 @@ view: daily_facts {
 
   derived_table: {
     explore_source: insights_data {
-      column: load_raw {}
+      column: load_date {}
+      column: conversation_type {field:insights_data.type}
       column: conversation_count {}
       column: contained_count {}
       column: good_sentiment_conversation_count {}
@@ -1097,88 +1131,115 @@ view: daily_facts {
       column: contained_percentage {}
     }
   }
-  dimension: load_raw {
+
+  dimension: date_type {
+    group_label: "Conversation Type"
     primary_key: yes
+    hidden: yes
+    sql: concat(${load_date}," ",${conversation_type}) ;;
+  }
+  dimension: load_date {
+    group_label: "Conversation Type"
     hidden: yes
     type: date_time
   }
+  dimension: conversation_type {
+    group_label: "Conversation Type"
+    hidden: yes
+    type: string
+  }
   dimension: conversation_count {
+    group_label: "Conversation Type"
     hidden: yes
     label: "Insights Data: Conversations Conversation Count"
     type: number
   }
   measure: avg_daily_conversations {
     description: "Average Conversations Per Day"
+    group_label: "Conversation Type"
     type: average
     sql: ${conversation_count} ;;
   }
   dimension: contained_count {
+    group_label: "Conversation Type"
     hidden: yes
     label: "Insights Data: Conversations Contained Count"
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: number
   }
   measure: avg_daily_contained_conversations {
+    group_label: "Conversation Type"
     description: "Average Contained Conversations Per Day"
     type: average
     sql: ${contained_count} ;;
   }
   dimension: good_sentiment_conversation_count {
+    group_label: "Conversation Type"
     hidden:  yes
     label: "Insights Data: Conversations Good Sentiment Conversation Count"
     type: number
   }
   measure: avg_daily_good_sentiment_conversations {
+    group_label: "Conversation Type"
     description: "Average Good Sentiment Conversations Per Day"
     type: average
     sql: ${good_sentiment_conversation_count} ;;
   }
   dimension: bad_sentiment_conversation_count {
+    group_label: "Conversation Type"
     hidden:  yes
     label: "Insights Data: Conversations Bad Sentiment Conversation Count"
     type: number
   }
   measure: avg_daily_bad_sentiment_conversations {
+    group_label: "Conversation Type"
     description: "Average Bad Sentiment Conversations Per Day"
     type: average
     sql: ${bad_sentiment_conversation_count} ;;
   }
   dimension: neutral_sentiment_conversation_count {
-    group_label: "Daily Metrics"
+    group_label: "Conversation Type"
     hidden: yes
     label: "Insights Data: Conversations Neutral Sentiment Conversation Count"
     type: number
   }
   measure: avg_daily_neutral_conversations {
+    group_label: "Conversation Type"
     description: "Average Neutral Sentiment Conversations Per Day"
     type: average
     sql: ${neutral_sentiment_conversation_count} ;;
   }
   dimension: entity_count {
+    group_label: "Conversation Type"
     hidden:  yes
     label: "Insights Data: Entities Count"
     type: number
   }
   measure: avg_daily_entities {
+    group_label: "Conversation Type"
     description: "Average Entities Per Day"
     type: average
     sql: ${entity_count} ;;
   }
   dimension: topic_count {
+    group_label: "Conversation Type"
     hidden: yes
     type: number
   }
   measure: avg_daily_topics {
+    group_label: "Conversation Type"
     description: "Average Topics Per Day"
     type: average
     sql: ${topic_count} ;;
   }
   dimension: contained_percentage {
+    group_label: "Conversation Type"
     hidden: yes
     type: number
   }
   measure: avg_daily_contained_percentage {
-    description: "Average Daily Contained Percentage Per Day"
+    group_label: "Conversation Type"
+    description: "Average Contained Percentage Per Day"
     type: average
     sql: ${contained_percentage} ;;
   }
