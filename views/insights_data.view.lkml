@@ -387,112 +387,6 @@ view: insights_data {
   }
 
 
-  ###################### Period over Period Reporting Metrics ######################
-
-  parameter: period {
-    hidden: yes
-    label: "Timeframe"
-    view_label: "Period over Period"
-    description: "Use with Period Over Period Date to choose the timeframe for analysis (WTD, MTD, QTD, YTD)"
-    type: unquoted
-    allowed_value: {
-      label: "Week to Date"
-      value: "Week"
-    }
-    allowed_value: {
-      label: "Month to Date"
-      value: "Month"
-    }
-    allowed_value: {
-      label: "Quarter to Date"
-      value: "Quarter"
-    }
-    allowed_value: {
-      label: "Year to Date"
-      value: "Year"
-    }
-    default_value: "Week"
-    required_fields: [pop_date,period_selected]
-  }
-
-  parameter: pop_date {
-    hidden: yes
-    label: "Period Over Period Date"
-    view_label: "Period over Period"
-    description: "Choose your start date for period over period analysis. Uses Conversation Import Date."
-    type: date
-    suggest_dimension: load_date
-    required_fields: [period, period_selected]
-  }
-
-  # To get start date we need to get either first day of the year, month or quarter
-  dimension: first_date_in_period {
-    hidden: yes
-    view_label: "Period over Period"
-    datatype: date
-    type: date
-    sql: DATE_TRUNC(date({% parameter pop_date %}), {% parameter period %});;
-  }
-
-  #Now get the total number of days in the period
-  dimension: days_in_period {
-    hidden: yes
-    view_label: "Period over Period"
-    type: number
-    sql: DATE_DIFF(date({% parameter pop_date %}),${first_date_in_period}, DAY) ;;
-  }
-
-
-  #Now get the first date in the prior period
-  dimension: first_date_in_prior_period {
-    view_label: "Period over Period"
-    datatype: date
-    type: date
-    hidden: yes
-    sql: DATE_TRUNC(DATE_ADD(date({% parameter pop_date %}), INTERVAL -1 {% parameter period %}),{% parameter period %});;
-  }
-
-  #Now get the last date in the prior period
-  dimension: last_date_in_prior_period {
-    hidden: yes
-    datatype: date
-    view_label: "Period over Period"
-    type: date
-    sql: DATE_ADD(date(${first_date_in_prior_period}), INTERVAL ${days_in_period} DAY) ;;
-  }
-
-  # Now figure out which period each date belongs in
-  dimension: period_selected {
-    hidden: yes
-    label: "Period Over Period"
-    view_label: "Period over Period"
-    type: string
-    required_fields: [period,pop_date]
-    sql:
-        CASE
-          WHEN date(${load_raw}) >=  date(${first_date_in_period})
-          AND date(${load_raw}) <=  date({% parameter pop_date %})
-          THEN 'Selected {% parameter period %} to Date'
-          WHEN date(${load_raw}) >= date(${first_date_in_prior_period})
-          AND date(${load_raw}) <= date(${last_date_in_prior_period})
-          THEN 'Prior {% parameter period %} to Date'
-          ELSE NULL
-          END ;;
-  }
-
-
-  dimension: days_from_period_start {
-    hidden: yes
-    view_label: "Period over Period"
-    type: number
-    sql: CASE WHEN ${period_selected} = 'Selected {% parameter period %} to Date'
-          THEN DATE_DIFF(${load_date}, ${first_date_in_period}, DAY)
-          WHEN ${period_selected} = 'Prior {% parameter period %} to Date'
-          THEN DATE_DIFF(${load_date}, ${first_date_in_prior_period}, DAY)
-          ELSE NULL END;;
-  }
-
-
 ### Measures ###
   measure: conversation_count {
     type: count
@@ -1123,9 +1017,6 @@ view: daily_facts {
       column: conversation_type {field:insights_data.type}
       column: conversation_count {}
       column: contained_count {}
-      column: good_sentiment_conversation_count {}
-      column: bad_sentiment_conversation_count {}
-      column: neutral_sentiment_conversation_count {}
       column: entity_count { field: insights_data__entities.count }
       column: topic_count { field: insights_data__topics.count }
       column: contained_percentage {}
@@ -1133,18 +1024,18 @@ view: daily_facts {
   }
 
   dimension: date_type {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     primary_key: yes
     hidden: yes
     sql: concat(${load_date}," ",${conversation_type}) ;;
   }
   dimension: load_date {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     hidden: yes
-    type: date_time
+    type: date
   }
   dimension: conversation_type {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     hidden: yes
     type: string
   }
@@ -1156,91 +1047,47 @@ view: daily_facts {
   }
   measure: avg_daily_conversations {
     description: "Average Conversations Per Day"
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     type: average
     sql: ${conversation_count} ;;
+    drill_fields: [insights_data.convo_info*]
   }
   dimension: contained_count {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     hidden: yes
     label: "Insights Data: Conversations Contained Count"
     description: "A conversation is considered contained if it was never passed to a human agent."
     type: number
   }
   measure: avg_daily_contained_conversations {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     description: "Average Contained Conversations Per Day"
     type: average
     sql: ${contained_count} ;;
-  }
-  dimension: good_sentiment_conversation_count {
-    group_label: "Conversation Type"
-    hidden:  yes
-    label: "Insights Data: Conversations Good Sentiment Conversation Count"
-    type: number
-  }
-  measure: avg_daily_good_sentiment_conversations {
-    group_label: "Conversation Type"
-    description: "Average Good Sentiment Conversations Per Day"
-    type: average
-    sql: ${good_sentiment_conversation_count} ;;
-  }
-  dimension: bad_sentiment_conversation_count {
-    group_label: "Conversation Type"
-    hidden:  yes
-    label: "Insights Data: Conversations Bad Sentiment Conversation Count"
-    type: number
-  }
-  measure: avg_daily_bad_sentiment_conversations {
-    group_label: "Conversation Type"
-    description: "Average Bad Sentiment Conversations Per Day"
-    type: average
-    sql: ${bad_sentiment_conversation_count} ;;
-  }
-  dimension: neutral_sentiment_conversation_count {
-    group_label: "Conversation Type"
-    hidden: yes
-    label: "Insights Data: Conversations Neutral Sentiment Conversation Count"
-    type: number
-  }
-  measure: avg_daily_neutral_conversations {
-    group_label: "Conversation Type"
-    description: "Average Neutral Sentiment Conversations Per Day"
-    type: average
-    sql: ${neutral_sentiment_conversation_count} ;;
+    drill_fields: [insights_data.convo_info*]
   }
   dimension: entity_count {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     hidden:  yes
     label: "Insights Data: Entities Count"
     type: number
   }
   measure: avg_daily_entities {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     description: "Average Entities Per Day"
     type: average
     sql: ${entity_count} ;;
   }
   dimension: topic_count {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     hidden: yes
     type: number
   }
   measure: avg_daily_topics {
-    group_label: "Conversation Type"
+    group_label: "Daily Metrics"
     description: "Average Topics Per Day"
     type: average
     sql: ${topic_count} ;;
   }
-  dimension: contained_percentage {
-    group_label: "Conversation Type"
-    hidden: yes
-    type: number
-  }
-  measure: avg_daily_contained_percentage {
-    group_label: "Conversation Type"
-    description: "Average Contained Percentage Per Day"
-    type: average
-    sql: ${contained_percentage} ;;
-  }
+
 }
