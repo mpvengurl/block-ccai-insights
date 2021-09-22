@@ -6,6 +6,10 @@ view: insights_data {
     type: string
     description: "The user-provided identifier for the human agent who handled the conversation."
     sql: ${TABLE}.agentId ;;
+    link: {
+      label: "Agent Performance Dashboard"
+      url: "https://nydmvtest.cloud.looker.com/dashboards-next/5?Agent+ID={{ value}}"
+    }
   }
 
   dimension: agent_sentiment_magnitude {
@@ -66,11 +70,6 @@ view: insights_data {
     primary_key: yes
     description: "Name of the conversation resource."
     sql: ${TABLE}.conversationName ;;
-    #link: {
-    #  label: "Sentences Drill - Explore"
-    #  url: "https://nydmvtest.cloud.looker.com/explore/insights_demo/insights_data?qid=LkNbSc9soYLmQo39wf47Bk&toggle=fil,vis#drillmenu&fields=sentence_turn_number.turn_number,
-    #  %20insights_data__sentences.sentence,%20insights_data__sentences.participant_role&f[insights_data.conversation_name]={{ value }}&limit=1000&sorts=sentence_turn_number.turn_number+asc"
-    #  }
     link: {
       label: "Conversation Lookup Dashboard"
       url: "https://nydmvtest.cloud.looker.com/dashboards-next/4?Conversation+Name={{ value}}"
@@ -819,21 +818,21 @@ view: insights_data__sentences__annotations {
   label: "Insights Data: Sentences"
 
   dimension: clicked {
-    group_label: "Annotations"
+    group_label: "Agent Assist Annotations"
     type: yesno
     description: "Customer feedback on whether the suggestion was clicked."
     sql: ${TABLE}.clicked ;;
   }
 
   dimension: correctness_level {
-    group_label: "Annotations"
+    group_label: "Agent Assist Annotations"
     type: string
     description: "Customer feedback on the correctness level of the suggestion."
     sql: ${TABLE}.correctnessLevel ;;
   }
 
   dimension_group: create {
-    group_label: "Annotations"
+    group_label: "Agent Assist Annotations"
     hidden: yes
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
@@ -842,21 +841,21 @@ view: insights_data__sentences__annotations {
   }
 
   dimension: displayed {
-    group_label: "Annotations"
+    group_label: "Agent Assist Annotations"
     type: yesno
     description: "Customer feedback on whether the suggestion was displayed."
     sql: ${TABLE}.displayed ;;
   }
 
   dimension: record {
-    group_label: "Annotations"
+    group_label: "Agent Assist Annotations"
     type: string
     description: "The suggestion content returned from CCAI, serialised as JSON."
     sql: ${TABLE}.record ;;
   }
 
   dimension: type {
-    group_label: "Annotations"
+    group_label: "Agent Assist Annotations"
     type: string
     description: "The type of suggestion."
     sql: ${TABLE}.type ;;
@@ -864,27 +863,35 @@ view: insights_data__sentences__annotations {
 }
 
 view: insights_data__sentences__intent_match_data {
+  #Documentation on Smart Highllights Here: https://cloud.google.com/contact-center/insights/docs/smart-highlights
   dimension: display_name {
-    group_label: "Intent Match"
-    label: "Intent Match Display Name"
+    #group_label: "Smart Highlights"
+    label: "Smart Highlight Name"
     type: string
     description: "The human readable name of the matched intent."
     sql: ${TABLE}.displayName ;;
   }
 
   dimension: intent_id {
-    group_label: "Intent Match"
-    label: "Intent Match Intent ID"
+    group_label: "Smart Highlights"
+    label: "Smart Highlight ID"
     type: string
+    primary_key: yes
+    hidden: yes
     description: "The unique ID of the matched intent."
     sql: ${TABLE}.intentId ;;
+  }
+
+  measure: count {
+    group_label: "Smart Highlights"
+    type: count
   }
 }
 
 view: insights_data__sentences__phrase_match_data {
   dimension: display_name {
-    label: "Phrase Match Name - Custom Highlights"
-    group_label: "Custom Highlights"
+    label: "Custom Highlight Name"
+    #group_label: "Custom Highlights"
     type: string
     description: "The human readable name of the phrase matcher set up as a custom highlight in the Insights console."
     sql: ${TABLE}.displayName ;;
@@ -893,15 +900,16 @@ view: insights_data__sentences__phrase_match_data {
   dimension: phrase_matcher_id {
     primary_key: yes
     group_label: "Custom Highlights"
-    label: "Phrase Match ID - Custom Highlights"
+    label: "Custom Highlight ID"
     type: string
+    hidden: yes
     description: "The unique ID of the phrase matcher set up as a custom highlight in the Insights console."
     sql: ${TABLE}.phraseMatcherId ;;
   }
 
   dimension: revision_id {
     group_label: "Custom Highlights"
-    label: "Phrase Match Revision ID - Custom Highlights"
+    label: "Custom Highlight Revision ID"
     hidden: yes
     type: number
     description: "Indicating the revision of the phrase matcher set up as a custom highlight in the Insights console."
@@ -915,34 +923,34 @@ view: insights_data__sentences__phrase_match_data {
 
 view: insights_data__sentences__dialogflow_intent_match_data {
   dimension: display_name {
-    group_label: "Dialogflow Intent Match (DIM)"
-    label: "DIM Display Name"
+    group_label: "Dialogflow Intents"
+    label: "Dialogflow Intent Name"
     type: string
     description: "The human readable name of the matched intent."
     sql: ${TABLE}.displayName ;;
   }
 
   dimension: intent_match_source {
-    hidden: yes
-    group_label: "Dialogflow Intent Match (DIM)"
-    label: "DIM Source"
+    hidden: yes #field no longer exists in database schema
+    group_label: "Dialogflow Intents"
+    label: "Dialogflow Intent Source"
     type: string
     description: "The source of the matched intent, either ANALYZE_CONTENT or DETECT_INTENT."
     sql: ${TABLE}.intentMatchSource ;;
   }
 
   dimension: intent_name {
-    hidden: yes
-    group_label: "Dialogflow Intent Match (DIM)"
-    label: "DIM Intent Name"
+    hidden:  yes
+    group_label: "Dialogflow Intents"
+    label: "Dialogflow Intent Name"
     type: string
     description: "The resource name of the matched intent."
     sql: ${TABLE}.intentName ;;
   }
 
   dimension: max_confidence {
-    group_label: "Dialogflow Intent Match (DIM)"
-    label: "DIM Max Confidence"
+    group_label: "Dialogflow Intents"
+    label: "Dialogflow Intent Max Confidence"
     type: number
     description: "The maximum confidence seen for the intent in the current transcript chunk."
     sql: ${TABLE}.maxConfidence ;;
