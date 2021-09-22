@@ -882,26 +882,33 @@ view: insights_data__sentences__intent_match_data {
 
 view: insights_data__sentences__phrase_match_data {
   dimension: display_name {
-    label: "Phrase Match Display Name"
-    group_label: "Phrase Match"
+    label: "Phrase Match Name - Custom Highlights"
+    group_label: "Custom Highlights"
     type: string
-    description: "The human readable name of the phrase matcher."
+    description: "The human readable name of the phrase matcher set up as a custom highlight in the Insights console."
     sql: ${TABLE}.displayName ;;
   }
 
   dimension: phrase_matcher_id {
-    group_label: "Phrase Match"
+    primary_key: yes
+    group_label: "Custom Highlights"
+    label: "Phrase Match ID - Custom Highlights"
     type: string
-    description: "The unique ID of the phrase matcher."
+    description: "The unique ID of the phrase matcher set up as a custom highlight in the Insights console."
     sql: ${TABLE}.phraseMatcherId ;;
   }
 
   dimension: revision_id {
-    group_label: "Phrase Match"
-    label: "Phrase Match Revision ID"
+    group_label: "Custom Highlights"
+    label: "Phrase Match Revision ID - Custom Highlights"
+    hidden: yes
     type: number
-    description: "Indicating the revision of the phrase matcher."
+    description: "Indicating the revision of the phrase matcher set up as a custom highlight in the Insights console."
     sql: ${TABLE}.revisionId ;;
+  }
+  measure: count {
+    group_label: "Custom Highlights"
+    type: count
   }
 }
 
