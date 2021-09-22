@@ -834,6 +834,7 @@ view: insights_data__sentences__annotations {
 
   dimension_group: create {
     group_label: "Annotations"
+    hidden: yes
     type: time
     timeframes: [time, hour_of_day, date, day_of_week, week, month_name, year, raw]
     description: "The time in UTC when the suggestion was generated."
