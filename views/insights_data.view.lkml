@@ -217,7 +217,7 @@ view: insights_data {
     description: "If the call was never transferred to a human, then Contained. If it was contained but lasted less than 1 minute, then Abandoned. If it was transferred to a human, then Transferred."
     type: string
     sql: case when ${human_agent_turns.first_turn_human_agent} is null and ${duration_minutes} < 1 then "Abandoned"
-    else ${human_agent_turns.first_turn_human_agent} is null then "Contained"
+     when ${human_agent_turns.first_turn_human_agent} is null then "Contained"
       else "Transferred" end;;
   }
 
@@ -469,7 +469,7 @@ view: insights_data {
   }
 
  set: convo_info {
-   fields: [agent_id, conversation_name, turn_count, load_time, duration_minutes, type, client_sentiment_category, agent_sentiment_category]
+   fields: [agent_id, conversation_name, turn_count, load_time, duration_minutes, type, client_sentiment_category, agent_sentiment_category, status]
  }
 }
 
