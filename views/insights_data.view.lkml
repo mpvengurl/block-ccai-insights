@@ -469,7 +469,7 @@ view: insights_data {
   }
 
  set: convo_info {
-   fields: [agent_id, conversation_name, turn_count, load_time, duration_minutes, type, channel, client_sentiment_category, agent_sentiment_category, status]
+   fields: [agent_id, conversation_name, turn_count, load_time, duration_minutes, type, client_sentiment_category, agent_sentiment_category]
  }
 }
 
