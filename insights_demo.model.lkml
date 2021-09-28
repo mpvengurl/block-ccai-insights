@@ -89,5 +89,3 @@ explore: insights_data {
   }
 
 }
-
-explore: daily_facts {}

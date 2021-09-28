@@ -239,13 +239,13 @@ view: insights_data {
 
   parameter: sentiment_score_threshold {
     description: "Score of the sentiment ranges between -1.0 (negative) and 1.0 (positive) and corresponds to the overall emotional leaning of the text. Set a custom minimum threshold to trigger Positive and Negative. E.g., choosing 0.05 will set Score > 0.05 to Positive, and Score < -0.05 to be Negative, while also incorporating the Magnitude selection."
-    hidden:  yes #Set no if you want this exposed in the Browse/Explore
+    hidden:  no #Set no if you want this exposed in the Browse/Explore
     type: number
     default_value: "0.05"
   }
   parameter: sentiment_magnitude_threshold {
     description: "Magnitude indicates the overall strength of emotion (both positive and negative) within the given text, between 0.0 and +inf. Unlike score, magnitude is not normalized; each expression of emotion within the text (both positive and negative) contributes to the text's magnitude (so longer text blocks may have greater magnitudes). Set a custom minimum threshold to trigger Positive, Negative, and Mixed vs. Neutral. E.g., choosing 0.1 will allow Positive scores to be considered Positive (vs. Mixed) if Magnitude exceeds 0.1."
-    hidden:  yes #Set no if you want this exposed in the Browse/Explore
+    hidden:  no #Set no if you want this exposed in the Browse/Explore
     type:  number
     default_value: "0.1"
   }
@@ -363,7 +363,7 @@ view: insights_data {
   }
 
   measure: neutral_sentiment_ratio {
-    label: "Neautral Conversation Ratio"
+    label: "Neutral Conversation Ratio"
     description: "Neautral Conversations / Total Conversations"
     group_label: "Sentiment"
     type: number
@@ -390,12 +390,28 @@ view: insights_data {
     drill_fields: [convo_info*,client_sentiment_score]
   }
 
+  measure: average_client_sentiment_magnitude {
+    group_label: "Sentiment"
+    type: average
+    sql: ${client_sentiment_magnitude} ;;
+    value_format_name: decimal_2
+    drill_fields: [convo_info*,client_sentiment_score, client_sentiment_magnitude]
+  }
+
   measure: average_agent_sentiment_score {
     group_label: "Sentiment"
     type: average
     sql: ${agent_sentiment_score} ;;
     value_format_name: decimal_2
     drill_fields: [convo_info*,agent_sentiment_score]
+  }
+
+  measure: average_agent_sentiment_magnitude {
+    group_label: "Sentiment"
+    type: average
+    sql: ${agent_sentiment_magnitude} ;;
+    value_format_name: decimal_2
+    drill_fields: [convo_info*,agent_sentiment_score, agent_sentiment_magnitude]
   }
 
 
@@ -605,13 +621,13 @@ view: insights_data__entities {
 
   parameter: sentiment_score_threshold {
     description: "Score of the sentiment ranges between -1.0 (negative) and 1.0 (positive) and corresponds to the overall emotional leaning of the text. Set a custom minimum threshold to trigger Positive and Negative. E.g., choosing 0.05 will set Score > 0.05 to Positive, and Score < -0.05 to be Negative, while also incorporating the Magnitude selection."
-    hidden:  yes #Set no if you want this exposed in the Browse/Explore
+    hidden:  no #Set no if you want this exposed in the Browse/Explore
     type: number
     default_value: "0.05"
   }
   parameter: sentiment_magnitude_threshold {
     description: "Magnitude indicates the overall strength of emotion (both positive and negative) within the given text, between 0.0 and +inf. Unlike score, magnitude is not normalized; each expression of emotion within the text (both positive and negative) contributes to the text's magnitude (so longer text blocks may have greater magnitudes). Set a custom minimum threshold to trigger Positive, Negative, and Mixed vs. Neutral. E.g., choosing 0.1 will allow Positive scores to be considered Positive (vs. Mixed) if Magnitude exceeds 0.1."
-    hidden:  yes #Set no if you want this exposed in the Browse/Explore
+    hidden:  no #Set no if you want this exposed in the Browse/Explore
     type:  number
     default_value: "0.1"
   }
@@ -626,6 +642,33 @@ view: insights_data__entities {
           AND ${sentiment_magnitude} > {% parameter sentiment_magnitude_threshold %} THEN "Mixed"
           ELSE "Neutral" END;;
   }
+  measure: average_sentiment_score {
+    group_label: "Sentiment"
+    type: average
+    sql: ${sentiment_score} ;;
+    value_format_name: decimal_2
+  }
+  measure: average_sentiment_magnitude {
+    group_label: "Sentiment"
+    type: average
+    sql: ${sentiment_magnitude} ;;
+    value_format_name: decimal_2
+  }
+  dimension: sentiment_category_value {
+    description: "Sentiment score multiplied by sentiment magnitude"
+    type: number
+    group_label: "Sentiment"
+    sql: ${sentiment_score}*${sentiment_magnitude} ;;
+    value_format_name: decimal_4
+  }
+
+  measure: average_sentiment_category_value{
+    type: average
+    group_label: "Sentiment"
+    sql: ${sentiment_category_value} ;;
+    value_format_name: decimal_4
+  }
+
 
   ############################ Measures ##################################
 
@@ -762,13 +805,13 @@ view: insights_data__sentences {
 
   parameter: sentiment_score_threshold {
     description: "Score of the sentiment ranges between -1.0 (negative) and 1.0 (positive) and corresponds to the overall emotional leaning of the text. Set a custom minimum threshold to trigger Positive and Negative. E.g., choosing 0.05 will set Score > 0.05 to Positive, and Score < -0.05 to be Negative, while also incorporating the Magnitude selection."
-    hidden:  yes #Set no if you want this exposed in the Browse/Explore
+    hidden:  no #Set no if you want this exposed in the Browse/Explore
     type: number
     default_value: "0.05"
   }
   parameter: sentiment_magnitude_threshold {
     description: "Magnitude indicates the overall strength of emotion (both positive and negative) within the given text, between 0.0 and +inf. Unlike score, magnitude is not normalized; each expression of emotion within the text (both positive and negative) contributes to the text's magnitude (so longer text blocks may have greater magnitudes). Set a custom minimum threshold to trigger Positive, Negative, and Mixed vs. Neutral. E.g., choosing 0.1 will allow Positive scores to be considered Positive (vs. Mixed) if Magnitude exceeds 0.1."
-    hidden:  yes #Set no if you want this exposed in the Browse/Explore
+    hidden:  no #Set no if you want this exposed in the Browse/Explore
     type:  number
     default_value: "0.1"
   }
@@ -798,6 +841,20 @@ measure: average_sentiment_category_value{
   sql: ${sentiment_category_value} ;;
   value_format_name: decimal_4
 }
+
+  measure: average_sentiment_score {
+    group_label: "Sentiment"
+    type: average
+    sql: ${sentiment_score} ;;
+    value_format_name: decimal_2
+  }
+
+  measure: average_sentiment_magnitude {
+    group_label: "Sentiment"
+    type: average
+    sql: ${sentiment_magnitude} ;;
+    value_format_name: decimal_2
+  }
 
   ############################# Measures ##################################
 
@@ -869,7 +926,7 @@ view: insights_data__sentences__intent_match_data {
     label: "Smart Highlight Name"
     type: string
     description: "The human readable name of the matched intent."
-    sql: ${TABLE}.displayName ;;
+    sql: case when ${TABLE}.displayName is null then "No Smart Highlight Match" else ${TABLE}.displayName end ;;
   }
 
   dimension: intent_id {
@@ -883,7 +940,7 @@ view: insights_data__sentences__intent_match_data {
   }
 
   measure: count {
-    group_label: "Smart Highlights"
+    #group_label: "Smart Highlights"
     type: count
   }
 }
@@ -894,7 +951,7 @@ view: insights_data__sentences__phrase_match_data {
     #group_label: "Custom Highlights"
     type: string
     description: "The human readable name of the phrase matcher set up as a custom highlight in the Insights console."
-    sql: ${TABLE}.displayName ;;
+    sql: case when ${TABLE}.displayName is null then "No Custom Highlight Match" else ${TABLE}.displayName end ;;
   }
 
   dimension: phrase_matcher_id {
@@ -927,7 +984,7 @@ view: insights_data__sentences__dialogflow_intent_match_data {
     label: "Dialogflow Intent Name"
     type: string
     description: "The human readable name of the matched intent."
-    sql: ${TABLE}.displayName ;;
+    sql: case when ${TABLE}.displayName is null then "No Dialogflow Intent Match" ;;
   }
 
   dimension: intent_match_source {
