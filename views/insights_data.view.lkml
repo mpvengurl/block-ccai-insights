@@ -984,7 +984,7 @@ view: insights_data__sentences__dialogflow_intent_match_data {
     label: "Dialogflow Intent Name"
     type: string
     description: "The human readable name of the matched intent."
-    sql: case when ${TABLE}.displayName is null then "No Dialogflow Intent Match" ;;
+    sql: case when ${TABLE}.displayName is null then "No Dialogflow Intent Match" else ${TABLE}.displayName end ;;
   }
 
   dimension: intent_match_source {
