@@ -8,7 +8,7 @@ view: insights_data {
     sql: ${TABLE}.agentId ;;
     link: {
       label: "Agent Performance Dashboard"
-      url: "https://nydmvtest.cloud.looker.com/dashboards-next/5?Agent+ID={{ value}}"
+      url: "https://nydmvtest.cloud.looker.com/dashboards-next/5?Agent+ID={{ value}}&Import+Date={{ _filters['insights_data.load_date'] | url_encode }}&Type={{ _filters['insights_data.type'] | url_encode }}&Client+Sentiment+Category={{ _filters['insights_data.client_sentiment_category'] | url_encode }}"
     }
   }
 
