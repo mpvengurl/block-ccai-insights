@@ -940,6 +940,7 @@ view: insights_data__sentences__intent_match_data {
   }
 
   measure: count {
+    label: "Smart Highlight Count"
     #group_label: "Smart Highlights"
     type: count
   }
@@ -973,6 +974,7 @@ view: insights_data__sentences__phrase_match_data {
     sql: ${TABLE}.revisionId ;;
   }
   measure: count {
+    label: "Custom Highlight Count"
     group_label: "Custom Highlights"
     type: count
   }
@@ -1022,7 +1024,7 @@ view: sentence_turn_number {
         insights_data__sentences.createTimeNanos AS created_test,
         rank() over(partition by insights_data.conversationName order by insights_data__sentences.createTimeNanos asc) AS turn_number
     FROM @{INSIGHTS_TABLE} AS insights_data
-    LEFT JOIN UNNEST(@{UNNEST_TABLE}.sentences) as insights_data__sentences
+    LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
     GROUP BY
     1,
     2,
@@ -1062,7 +1064,7 @@ view: human_agent_turns {
     insights_data__sentences.createTimeNanos AS created_test,
     rank() over(partition by insights_data.conversationName order by insights_data__sentences.createTimeNanos asc) AS turn_number
     FROM @{INSIGHTS_TABLE} AS insights_data
-    LEFT JOIN UNNEST(@{UNNEST_TABLE}.sentences) as insights_data__sentences
+    LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
     GROUP BY
     1,
     2,
@@ -1071,7 +1073,7 @@ SELECT
     insights_data.conversationName  AS conversation_name,
     min(sentence_turn_number.turn_number) AS first_turn_human_agent
 FROM @{INSIGHTS_TABLE} AS insights_data
-LEFT JOIN UNNEST(@{UNNEST_TABLE}.sentences) as insights_data__sentences
+LEFT JOIN UNNEST(insights_data.sentences) as insights_data__sentences
 LEFT JOIN sentence_turn_number ON insights_data.conversationName=sentence_turn_number.conversation_name
     and insights_data__sentences.sentence = sentence_turn_number.sentence
     and (TIMESTAMP_MICROS(CAST(insights_data__sentences.createTimeNanos/1000 as INT64))) = (TIMESTAMP_MICROS(CAST(sentence_turn_number.created_test/1000 as INT64)))
@@ -1136,6 +1138,7 @@ view: daily_facts {
     group_label: "Daily Metrics"
     type: average
     sql: ${conversation_count} ;;
+    value_format_name: decimal_2
     drill_fields: [insights_data.convo_info*]
   }
   dimension: contained_count {
@@ -1150,6 +1153,7 @@ view: daily_facts {
     description: "Average Contained Conversations Per Day"
     type: average
     sql: ${contained_count} ;;
+    value_format_name: decimal_2
     drill_fields: [insights_data.convo_info*]
   }
   dimension: entity_count {
@@ -1162,6 +1166,7 @@ view: daily_facts {
     group_label: "Daily Metrics"
     description: "Average Entities Per Day"
     type: average
+    value_format_name: decimal_2
     sql: ${entity_count} ;;
   }
   dimension: topic_count {
@@ -1173,6 +1178,7 @@ view: daily_facts {
     group_label: "Daily Metrics"
     description: "Average Topics Per Day"
     type: average
+    value_format_name: decimal_2
     sql: ${topic_count} ;;
   }
 
