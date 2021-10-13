@@ -1,6 +1,6 @@
 ##################### Constants ###################
 
-constant: CONNECTION {
+constant: CONNECTION_NAME {
   value: "demodataset" #CCAI Demo Data
   export: override_optional
 }
