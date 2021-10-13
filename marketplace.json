@@ -16,7 +16,7 @@
     },
     "UNNEST_TABLE": {
       "label": "Unnest Table",
-    },
+    }
   },
   "models": [
     {
