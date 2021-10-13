@@ -6,8 +6,8 @@ Note that you will need to set the job to run on a schedule with appropriate fil
 Do not utilize the Export button in the Insights interface as there are currently limits on the number of records able to be exported as well as no ability to append data in the target table.
 
 Included in the Block:  
-Data Model: translates the CCAI Insights export schema and allows for customization of metrics.  
-One Explore: user-friendly point and click interface for performing ad-hoc queries.  
-Call Center Overview Dashboard: Executive dashboard displaying high-level metrics intended for call center management.  
-Agent Performance Dashboard: Performance metrics for an individual agent, linked from the Agent ID dimension.  
-Conversation Lookup Dashboard: Detailed transcript and sentiment analysis for an individual conversation, linked from the Conversation Name dimension.
+- Data Model: translates the CCAI Insights export schema and allows for customization of metrics.  
+- One Explore: user-friendly point and click interface for performing ad-hoc queries.  
+- Call Center Overview Dashboard: Executive dashboard displaying high-level metrics intended for call center management.  
+- Agent Performance Dashboard: Performance metrics for an individual agent, linked from the Agent ID dimension.  
+- Conversation Lookup Dashboard: Detailed transcript and sentiment analysis for an individual conversation, linked from the Conversation Name dimension.
