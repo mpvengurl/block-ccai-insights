@@ -12,10 +12,10 @@
        "value_constraint": "connection"
     },
     "INSIGHTS_TABLE": {
-      "label": "Insights Table",
+      "label": "Insights Table"
     },
     "UNNEST_TABLE": {
-      "label": "Unnest Table",
+      "label": "Unnest Table"
     }
   },
   "models": [
