@@ -1,32 +1,26 @@
 {
-  "label": "BigQuery ML Classification and Regression (AutoML Tables)",
+  "label": "CCAI Insights",
   "category_label": "Models",
   "branding": {
     "image_uri": "https://marketplace-api.looker.com/block-icons/bq_new_icon.png",
-    "tagline": "Build Explores that allow business users to create state-of-the-art classification and regression machine learning models for categorical or numerical predictions."
+    "tagline": "CCAI Insights integrates with the Looker Block to aggregate data outside of contact center sources to provide a more holistic view of the business."
   },
 
   "constants": {
     "CONNECTION_NAME": {
       "label": "Connection Name",
-      "value_constraint": "connection"
+       value_constraint": "connection"
     },
-    "looker_temp_dataset_name": {
-      "label": "Looker Temp Dataset Name",
-       "description": "The temporary dataset for Looker PDTs must be located in the US multi-region location to use this block’s example Explore. If your default BigQuery connection uses a temporary dataset located outside of the US, ask your Looker Admin to create another BigQuery connection in Looker with the temporary dataset for PDTs located in the US."
-    }
-  },
-  "models": [
-
-    }
+    "INSIGHTS_TABLE": {
+      "label": "Insights Table",
+    },
+    "UNNEST_TABLE": {
+      "label": "Unnest Table",
+    },
   },
   "models": [
     {
-      "name": "automl_tables_model_info",
-      "connection_constant": "CONNECTION_NAME"
-    },
-    {
-      "name": "census_income_predictions",
+      "name": "insights_demo",
       "connection_constant": "CONNECTION_NAME"
     }
   ]
