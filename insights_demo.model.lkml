@@ -1,8 +1,8 @@
 connection: "@{CONNECTION_NAME}"
 
 # include all the views
-include: "/views/**/*.view"
-include: "/refinements/**/*.view"
+include: "/views/**/*.view" # Include All Views
+include: "/dashboards/*.dashboard.lookml" # Include All Dashboards
 
 datagroup: insights_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
