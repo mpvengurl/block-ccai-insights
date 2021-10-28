@@ -8,7 +8,7 @@ view: insights_data {
     sql: ${TABLE}.agentId ;;
     link: {
       label: "Agent Performance Dashboard"
-      url: "https://nydmvtest.cloud.looker.com/dashboards-next/5?Agent+ID={{ value}}&Import+Date={{ _filters['insights_data.load_date'] | url_encode }}&Start+Date={{ _filters['insights_data.start_date'] | url_encode }}&Type={{ _filters['insights_data.type'] | url_encode }}&Client+Sentiment+Category={{ _filters['insights_data.client_sentiment_category'] | url_encode }}"
+      url: "/dashboards-next/insights_demo::agent_performance?Agent+ID={{ value}}&Import+Date={{ _filters['insights_data.load_date'] | url_encode }}&Start+Date={{ _filters['insights_data.start_date'] | url_encode }}&Type={{ _filters['insights_data.type'] | url_encode }}&Client+Sentiment+Category={{ _filters['insights_data.client_sentiment_category'] | url_encode }}"
     }
   }
 
@@ -72,7 +72,7 @@ view: insights_data {
     sql: ${TABLE}.conversationName ;;
     link: {
       label: "Conversation Lookup Dashboard"
-      url: "https://nydmvtest.cloud.looker.com/dashboards-next/4?Conversation+Name={{ value}}"
+      url: "/dashboards-next/insights_demo::conversation_lookup?Conversation+Name={{ value}}"
     }
   }
 
